@@ -244,11 +244,11 @@
   .nm{font-family:var(--body);font-size:14px;font-weight:600;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .dv{font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:5px;display:flex;align-items:center;gap:7px;cursor:pointer;letter-spacing:.5px}
   .dv:hover{color:var(--ink2)} .dv .label{color:var(--ink2)} .dv .stars{color:var(--gold)}
-  .heat{font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 9px;flex:0 0 auto;color:#02040a;align-self:flex-start;clip-path:polygon(6px 0,100% 0,100% 100%,0 100%)}
+  .heat{font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:4px 9px;flex:0 0 auto;color:#02040a;align-self:flex-end;clip-path:polygon(6px 0,100% 0,100% 100%,0 100%)}
   .heat.hot{background:var(--lime)} .heat.trk{background:var(--cyan)} .heat.grad{background:var(--gold)} .heat.elite{background:linear-gradient(90deg,var(--gold),#fff2b0);color:#3a2a00} .heat.rugger{background:var(--down);color:#fff} .heat.ansem{background:var(--magenta);color:#fff}
   .headr{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:0 0 auto;align-self:flex-start}
-  .promise{display:none;font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--gold);align-items:center;gap:4px;white-space:nowrap;margin-top:7px}
-  .promise .pstar{font-size:15px;line-height:1}
+  .promise{display:none;font-family:var(--mono);font-size:13px;font-weight:800;letter-spacing:.5px;color:var(--gold);align-items:center;gap:5px;white-space:nowrap;margin-top:11px}
+  .promise .pstar{font-size:18px;line-height:1}
   .promise.on{display:flex}
 
   .readouts{display:flex;gap:11px;margin-top:13px}
@@ -354,6 +354,7 @@
   /* ANSEM takeover */
   .takeover{background:radial-gradient(circle at 50% 40%,rgba(255,43,214,.25),rgba(2,4,9,.92));z-index:90}
   .tkbox{width:min(560px,94vw);padding:2px;clip-path:var(--chamf);background:linear-gradient(135deg,var(--magenta),var(--violet),var(--magenta));animation:tkpulse 1.1s ease-in-out infinite}
+  }
   .tkin{clip-path:var(--chamf);background:linear-gradient(180deg,#160a1e,#0a0610);padding:26px;text-align:center}
   .tklabel{font-family:var(--hud);font-weight:900;font-size:26px;letter-spacing:3px;color:#fff;display:flex;align-items:center;justify-content:center;gap:12px}
   .tklabel .bolt{animation:bp .7s infinite}
@@ -379,6 +380,12 @@
   @keyframes tin{from{transform:translateX(-34px);opacity:0}to{transform:none;opacity:1}}
   .toast .tw{clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));background:linear-gradient(180deg,#0c1322,#070d18);padding:11px 12px;display:flex;gap:11px;align-items:center;min-width:270px}
   .toast .ic{font-family:var(--hud);font-weight:800;font-size:17px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:#02040a;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px))}
+  .toast .ic.av{padding:0;background:none;width:38px;height:38px;overflow:hidden}.toast .ic.av .bav,.toast .ic.av img{width:38px;height:38px;border:none;clip-path:none}
+  .balrow{font-family:var(--mono);font-size:12px;color:var(--mut);margin:14px 0 6px}
+  .balca{font-family:var(--mono);font-size:13px;color:var(--gold);background:#02040a;border:1px solid var(--edge2);padding:10px 12px;cursor:pointer;word-break:break-all}.balca:hover{border-color:var(--gold)}.balca.copied,.dmw.copied{color:var(--up)}
+  .balbtns{display:flex;gap:8px;margin-top:12px}
+  .balbtns button{flex:1;font-family:var(--hud);font-weight:800;font-size:13px;letter-spacing:.5px;padding:11px;cursor:pointer;border:none;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+  .balbuy{background:var(--up);color:#02040a}.balcopy{background:var(--edge2);color:var(--ink)}.balbtns button:hover{filter:brightness(1.12)}
   .toast.buy .ic{background:var(--lime)} .toast.recv .ic{background:var(--cyan)}
   .toast .body{flex:1;min-width:0;cursor:default}
   .toast .th{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut)}
@@ -421,6 +428,7 @@
     <div class="toolbar">
       <div class="warn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.42 0Z"/></svg><span>Tracked devs, proven graduates &amp; live runners caught by the radar. Scores are a research signal &mdash; not financial advice. Always verify the contract before you sign.</span></div>
       <div class="pills" id="pills">
+        <span class="pill on" data-k="all">ALL</span>
         <span class="pill" data-k="tracked">TRACKED</span>
         <span class="pill" data-k="winner">REPEAT GRAD</span>
         <span class="pill" data-k="hot">HOT</span>
@@ -514,6 +522,13 @@
   <h2>DEV PROFILE <span class="tag" style="background:var(--gold);color:#02040a">ANSTRACK STATS</span></h2>
   <div id="dmBody"></div>
   <div class="mrow"><button class="btn ghost" id="dmClose">CLOSE</button></div>
+</div></div></div>
+
+<!-- BUY ALERT INFO -->
+<div class="scrim" id="balScrim"><div class="modal"><div class="mi">
+  <h2>DEV BUY <span class="tag" style="background:var(--up);color:#02040a">TRACKED</span></h2>
+  <div id="balBody"></div>
+  <div class="mrow"><button class="btn ghost" id="balClose">CLOSE</button></div>
 </div></div></div>
 
 <!-- CREATE WALLET -->
@@ -1007,7 +1022,7 @@ setInterval(()=>{for(const it of items){const d=dataByMint.get(it.mint);if(!d||d
 
 // state
 const seen=new Set();const cardByMint=new Map();const dataByMint=new Map();let nTrk=0,nWin=0,nMig=0;
-const items=[];let active={tracked:false,winner:false,hot:false,mig:false};
+const items=[];let active={all:true,tracked:false,winner:false,hot:false,mig:false};
 // a migrated token stays on the migration page/ticker only while ACTIVE: under $500k MC and not rugged
 function isActiveMig(it){if(!it||!it.mig)return false;const d=dataByMint.get(it.mint);if(!d)return false;
   const mc=d.mcUsd||(d.market&&d.market.mc)||0;if(mc>500000)return false;
@@ -1021,10 +1036,16 @@ function renderTape(){const live=items.filter(isActiveMig);
     return '<span class="ti tbuy'+(up?' up':'')+'" data-mint="'+it.mint+'"><span class="s">$'+esc(d.sym||short(it.mint))+'</span><span class="p">'+fmtK(mc)+'</span>'+chg+'</span>'};
   const html=live.map(make).join('');$('tape').innerHTML=html+html;
   $('tape').querySelectorAll('.tbuy').forEach(el=>el.onclick=()=>{const d=dataByMint.get(el.dataset.mint);if(d)openBuy(d.ev,liveScore(d),'auto')})}
-function applyFilters(){const any=active.tracked||active.winner||active.hot||active.mig;
+function applyFilters(){
   items.forEach(it=>{const dd=dataByMint.get(it.mint);
     if(mcOf(dd)>500000||isRuggedTok(dd)){it.el.style.display='none';return} // past the window ($500k+) or rugged/crashed -> gone from every page
-    const hot=isHotRunner(dd)&&!it.mig;const show=!any||(active.tracked&&it.tracked)||(active.winner&&it.winner&&!it.mig)||(active.hot&&hot)||(active.mig&&isActiveMig(it));it.el.style.display=show?'':'none'})}
+    let show;
+    if(active.tracked)show=it.tracked;
+    else if(active.winner)show=it.winner;                  // REPEAT GRAD: every repeat-grad card, whether or not it has graduated yet
+    else if(active.hot)show=isHotRunner(dd);                // HOT: anything running on volume+momentum right now, even after it graduates
+    else if(active.mig)show=it.mig&&isActiveMig(it);
+    else show=true;                                         // ALL (default page): every live card
+    it.el.style.display=show?'':'none'})}
 // highest-scored tokens float to the top — reorder via CSS `order` (no DOM moves = no flicker)
 function resortFeed(){const ranked=items.map(it=>({it,sc:(()=>{const d=dataByMint.get(it.mint);return d?liveScore(d):0})()})).sort((a,b)=>b.sc-a.sc);
   ranked.forEach((r,i)=>{if(r.it.el.style.order!=i)r.it.el.style.order=i})}
@@ -1055,16 +1076,17 @@ function sweepStale(){const now=Date.now();for(let i=items.length-1;i>=0;i--){co
 // live header counts (current grid state, not a running tally)
 function refreshStats(){let t=0,w=0,h=0,m=0;items.forEach(it=>{const d=dataByMint.get(it.mint);if(!d)return;
   if((d.mcUsd||(d.market&&d.market.mc)||0)>500000||isRuggedTok(d))return;
-  if(it.mig){if(isActiveMig(it))m++;return}
-  if(it.tracked)t++;if(it.winner)w++;if(isHotRunner(d))h++});
+  if(it.tracked)t++;
+  if(it.winner)w++;                        // REPEAT GRAD count = every grad card (migrated or not), matching the page
+  if(isHotRunner(d))h++;                    // HOT count = anything running, even after graduation
+  if(it.mig&&isActiveMig(it))m++});
   $('sTrk').textContent=t;$('sWin').textContent=w;$('sHot').textContent=h;$('sMig').textContent=m}
 function drop(it,i){it.el.remove();cardByMint.delete(it.mint);items.splice(i,1)}
 setInterval(sweepStale,30000);
-$('pills').addEventListener('click',ev=>{const c=ev.target.closest('.pill');if(!c)return;const k=c.dataset.k;const wasOn=!!active[k];
-  // single-select: clear all, then enable only this one (or none if it was already on)
-  ['tracked','winner','hot','mig'].forEach(x=>active[x]=false);
-  $('pills').querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
-  if(!wasOn){active[k]=true;c.classList.add('on')}
+$('pills').addEventListener('click',ev=>{const c=ev.target.closest('.pill');if(!c)return;const k=c.dataset.k;
+  // single-select radio: exactly one page is ALWAYS selected (clicking the active one is a no-op, never clears to none)
+  ['all','tracked','winner','hot','mig'].forEach(x=>active[x]=(x===k));
+  $('pills').querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',p.dataset.k===k));
   applyFilters();if(typeof saveUI==='function')saveUI()});
 
 function segs(alpha,tier){const lit=Math.round(alpha/10);let h='';for(let i=0;i<10;i++)h+='<i class="'+(i<lit?'on':'')+'"></i>';return '<div class="seg '+tier+'">'+h+'</div>'}
@@ -1156,7 +1178,10 @@ function addLaunch(e,opts){opts=opts||{};
 
 // migration: stamp OUR token in place (keep name/alpha/buy); show a tile only for tracked/winner devs;
 // every other migrating dev is silently credited as a future winner (no flood, no unnamed tiles)
-function stampGraduated(c,mint){c.dataset.tier='grad';const it=items.find(i=>i.mint===mint);if(it){it.mig=true;it.winner=true}
+function stampGraduated(c,mint){c.dataset.tier='grad';const it=items.find(i=>i.mint===mint);if(it){it.mig=true}
+  // NOTE: do NOT set it.winner here. it.winner means "dev had already graduated before this token launched"
+  // (a true repeat grad). A token graduating *now* belongs on MIGRATED, not REPEAT GRAD, unless its dev was
+  // already a known graduate at launch — in which case it.winner was already true from card creation.
   const d=dataByMint.get(mint);if(d)d.migrated=true;
   const chart=c.querySelector('a.btn.ghost');if(chart)chart.href=(d&&d.pairUrl)||('https://dexscreener.com/solana/'+mint);
   const bd=c.querySelector('.badges');if(bd&&!c.querySelector('.bdg.mig')){const s=document.createElement('span');s.className='bdg mig';s.textContent='\u2934 GRADUATED';bd.prepend(s)}
@@ -1527,8 +1552,9 @@ seedAnsem();
 
 // ===== floating alerts (bottom-left, newest at bottom, persist until dismissed) =====
 const fmtTok=n=>n>=1e9?(n/1e9).toFixed(2)+'B':n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':(+n).toFixed(2);
-function toast(kind,title,text,mint,onClick){const wrap=$('toasts');const t=document.createElement('div');t.className='toast '+kind;
-  t.innerHTML='<div class="tw"><div class="ic">'+(kind==='buy'?'$':'\u21e3')+'</div><div class="body"><div class="th">'+title+'</div><div class="tb">'+esc(text)+'</div></div><div class="x">\u00d7</div></div>';
+function toast(kind,title,text,mint,onClick,avatar){const wrap=$('toasts');const t=document.createElement('div');t.className='toast '+kind;
+  const ic=avatar?'<div class="ic av">'+avatar+'</div>':'<div class="ic">'+(kind==='buy'?'$':'\u21e3')+'</div>';
+  t.innerHTML='<div class="tw">'+ic+'<div class="body"><div class="th">'+title+'</div><div class="tb">'+esc(text)+'</div></div><div class="x">\u00d7</div></div>';
   t.querySelector('.x').onclick=()=>t.remove();
   if(onClick){const b=t.querySelector('.body');b.style.cursor='pointer';b.onclick=onClick}
   else if(mint){const b=t.querySelector('.body');b.style.cursor='pointer';b.onclick=()=>window.open('https://pump.fun/'+mint,'_blank')}
@@ -1563,10 +1589,23 @@ async function classifyTx(wallet,sig){let tx=null;try{tx=await rpc('getTransacti
   const tb=arr=>{const m={};(arr||[]).forEach(t=>{if(t.owner===wallet)m[t.mint]=+(t.uiTokenAmount.uiAmount||0)});return m};
   const pb=tb(tx.meta.preTokenBalances),qb=tb(tx.meta.postTokenBalances);
   let up=0,upMint=null;new Set([...Object.keys(pb),...Object.keys(qb)]).forEach(mt=>{const dd=(qb[mt]||0)-(pb[mt]||0);if(dd>up){up=dd;upMint=mt}});
-  const dv=devs[wallet]||{};const isAns=dv.kind==='ansem';const who=dv.label||short(wallet);
-  if(isSigner&&up&&solDelta<-0.0005){toast('buy',isAns?'ANSEM BUY':'DEV BUY \u00b7 '+who,'Bought '+fmtTok(up)+' \u00b7 '+short(upMint),upMint);return}
+  const dv=devs[wallet]||{};const isAns=dv.kind==='ansem';const pd=pumpDevCache.get(wallet);const who=(pd&&pd.ok&&pd.username)||dv.label||short(wallet);
+  if(isSigner&&up&&solDelta<-0.0005){const sym=(dataByMint.get(upMint)&&dataByMint.get(upMint).sym)||'';
+    queuePumpDev&&queuePumpDev(wallet);
+    toast('buy',(isAns?'\u26a1 ':'')+esc(who)+' BOUGHT',fmtTok(up)+' '+(sym?'$'+sym:short(upMint)),upMint,()=>openBuyAlert(wallet,upMint,sym,up),devAvatar(wallet));return}
   // (incoming/received-transfer alerts removed — only buys of followed devs are surfaced)
   }
+function openBuyAlert(wallet,mint,sym,amt){const dv=devs[wallet]||{};const pd=pumpDevCache.get(wallet);const nm=(pd&&pd.ok&&pd.username)||dv.label||short(wallet);
+  $('balBody').innerHTML='<div class="dmhd">'+devAvatar(wallet)+'<div><div class="nm">'+esc(nm)+'</div><div class="dmw" data-cw="'+wallet+'" title="press to copy wallet">'+short(wallet)+' \u29c9</div></div></div>'+
+    '<div class="balrow">bought <b style="color:var(--ink)">'+fmtTok(amt)+'</b> of</div>'+
+    '<div class="balca" data-cw="'+mint+'" title="press to copy contract">'+(sym?'$'+esc(sym)+' \u00b7 ':'')+esc(mint)+' \u29c9</div>'+
+    '<div class="balbtns"><button class="balbuy" id="balBuy">BUY THIS TOKEN</button><button class="balcopy" id="balCopyCa">COPY CA</button></div>';
+  $('balBody').querySelectorAll('[data-cw]').forEach(x=>x.onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(x.dataset.cw)}catch{}x.classList.add('copied');setTimeout(()=>x.classList.remove('copied'),900)});
+  $('balBuy').onclick=()=>{balScrim.classList.remove('show');openBuy({mint:mint,name:'',symbol:sym||''},liveScore(dataByMint.get(mint))||0,'auto')};
+  $('balCopyCa').onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(mint)}catch{}$('balCopyCa').textContent='COPIED \u2713';setTimeout(()=>$('balCopyCa').textContent='COPY CA',1200)};
+  balScrim.classList.add('show')}
+const balScrim=$('balScrim');
+$('balClose').onclick=()=>balScrim.classList.remove('show');balScrim.onclick=e=>{if(e.target===balScrim)balScrim.classList.remove('show')};
 setInterval(watchWallets,12000);setTimeout(watchWallets,4500);
 
 // ===== websocket (free: new tokens + migrations only) =====
@@ -1614,7 +1653,8 @@ function restoreGrid(){let saved;try{saved=JSON.parse(localStorage.getItem(GRID_
   refreshStats();resortFeed();applyFilters();renderTape()}
 function saveUI(){try{localStorage.setItem(UI_KEY,JSON.stringify({active,best:bestPageOn}))}catch{}}
 function restoreUI(){let u;try{u=JSON.parse(localStorage.getItem(UI_KEY)||'null')}catch{u=null}if(!u)return;
-  if(u.active){['tracked','winner','hot','mig'].forEach(k=>{active[k]=!!u.active[k];const p=$('pills').querySelector('.pill[data-k="'+k+'"]');if(p)p.classList.toggle('on',active[k])});applyFilters()}
+  if(u.active){const keys=['all','tracked','winner','hot','mig'];const sel=keys.find(k=>u.active[k])||'all';
+    keys.forEach(k=>{active[k]=(k===sel);const p=$('pills').querySelector('.pill[data-k="'+k+'"]');if(p)p.classList.toggle('on',k===sel)});applyFilters()}
   if(u.best)toggleBest(true)}
 setInterval(saveGrid,4000);
 window.addEventListener('beforeunload',()=>{saveGrid();saveUI()});
