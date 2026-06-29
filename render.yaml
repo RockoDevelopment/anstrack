@@ -1,0 +1,23 @@
+# Render blueprint for ANSTRACK. Push the repo, then "New + > Blueprint" and pick this file.
+services:
+  - type: web
+    name: anstrack
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python start.py
+    envVars:
+      - key: VAULT_PATH          # file vault lives on the persistent disk
+        value: /var/anstrack/vault
+      - key: DATABASE_URL        # auto-filled from the database below -> vault persists in Postgres
+        fromDatabase:
+          name: anstrack-db
+          property: connectionString
+    disk:
+      name: anstrack-vault
+      mountPath: /var/anstrack
+      sizeGB: 1
+
+databases:
+  - name: anstrack-db
+    plan: free
