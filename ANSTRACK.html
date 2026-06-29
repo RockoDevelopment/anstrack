@@ -354,7 +354,6 @@
   /* ANSEM takeover */
   .takeover{background:radial-gradient(circle at 50% 40%,rgba(255,43,214,.25),rgba(2,4,9,.92));z-index:90}
   .tkbox{width:min(560px,94vw);padding:2px;clip-path:var(--chamf);background:linear-gradient(135deg,var(--magenta),var(--violet),var(--magenta));animation:tkpulse 1.1s ease-in-out infinite}
-  }
   .tkin{clip-path:var(--chamf);background:linear-gradient(180deg,#160a1e,#0a0610);padding:26px;text-align:center}
   .tklabel{font-family:var(--hud);font-weight:900;font-size:26px;letter-spacing:3px;color:#fff;display:flex;align-items:center;justify-content:center;gap:12px}
   .tklabel .bolt{animation:bp .7s infinite}
@@ -1041,7 +1040,7 @@ function applyFilters(){
     if(mcOf(dd)>500000||isRuggedTok(dd)){it.el.style.display='none';return} // past the window ($500k+) or rugged/crashed -> gone from every page
     let show;
     if(active.tracked)show=it.tracked;
-    else if(active.winner)show=it.winner;                  // REPEAT GRAD: every repeat-grad card, whether or not it has graduated yet
+    else if(active.winner)show=it.winner&&!it.mig&&!isHotRunner(dd); // REPEAT GRAD: prior-grad dev's tokens still live — once one graduates it moves to MIGRATED, once it runs it moves to HOT
     else if(active.hot)show=isHotRunner(dd);                // HOT: anything running on volume+momentum right now, even after it graduates
     else if(active.mig)show=it.mig&&isActiveMig(it);
     else show=true;                                         // ALL (default page): every live card
@@ -1077,7 +1076,7 @@ function sweepStale(){const now=Date.now();for(let i=items.length-1;i>=0;i--){co
 function refreshStats(){let t=0,w=0,h=0,m=0;items.forEach(it=>{const d=dataByMint.get(it.mint);if(!d)return;
   if((d.mcUsd||(d.market&&d.market.mc)||0)>500000||isRuggedTok(d))return;
   if(it.tracked)t++;
-  if(it.winner)w++;                        // REPEAT GRAD count = every grad card (migrated or not), matching the page
+  if(it.winner&&!it.mig&&!isHotRunner(d))w++;  // REPEAT GRAD count = live prior-grad tokens only (graduated->MIGRATED, running->HOT)
   if(isHotRunner(d))h++;                    // HOT count = anything running, even after graduation
   if(it.mig&&isActiveMig(it))m++});
   $('sTrk').textContent=t;$('sWin').textContent=w;$('sHot').textContent=h;$('sMig').textContent=m}
