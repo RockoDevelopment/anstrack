@@ -57,16 +57,20 @@
   #swapPage::-webkit-scrollbar{width:10px}#swapPage::-webkit-scrollbar-thumb{background:var(--edge2)}
   .swaphead{display:flex;align-items:center;gap:12px;font-family:var(--hud);font-weight:800;font-size:20px;letter-spacing:1px;margin-bottom:6px;flex-wrap:wrap}
   .swapsub{font-family:var(--mono);font-size:11px;color:var(--mut);margin-bottom:18px}
-  .swapwrap{max-width:440px;margin:0 auto}
-  .swapcard{border:1px solid #7C3AED;background:linear-gradient(180deg,rgba(124,58,237,.06),var(--panel));padding:18px;clip-path:var(--chamf)}
+  .swapwrap{max-width:520px;margin:0 auto}
+  .swapcard{position:relative;border:1px solid rgba(124,58,237,.85);background:radial-gradient(circle at 20% 0,rgba(124,58,237,.28),transparent 34%),linear-gradient(180deg,#111827,#070b15 65%,#050712);padding:18px;clip-path:var(--chamf);box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 24px 80px rgba(0,0,0,.42)}
+  .swapcard::before{content:"";position:absolute;inset:1px;pointer-events:none;clip-path:var(--chamf);background:linear-gradient(135deg,rgba(255,255,255,.08),transparent 32%,rgba(124,58,237,.13));opacity:.9}
+  .swaproute{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;font-family:var(--mono);font-size:10px;color:#c4a8ff;letter-spacing:.8px}
+  .swaproute .node{border:1px solid rgba(124,58,237,.6);background:rgba(124,58,237,.12);padding:6px 10px;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px))}
+  .swaproute .line{height:1px;flex:1;background:linear-gradient(90deg,transparent,#7C3AED,transparent)}
   .swapdir{display:flex;gap:8px;margin-bottom:14px}
   .swapdir button{flex:1;font-family:var(--mono);font-size:12px;letter-spacing:.5px;padding:9px;cursor:pointer;border:1px solid var(--edge2);background:rgba(255,255,255,.03);color:var(--ink2);clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px))}
   .swapdir button.on{background:#7C3AED;color:#fff;border-color:#7C3AED}
   .swseg{display:flex;gap:6px;margin-bottom:14px}
   .swseg button{flex:1;font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:8px;cursor:pointer;border:1px solid var(--edge2);background:rgba(255,255,255,.03);color:var(--ink2);clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px))}
   .swseg button.on{background:#7C3AED;color:#fff;border-color:#7C3AED}
-  .swleg{background:#02040a;border:1px solid var(--edge2);padding:13px 14px}
-  .swleg.to{border-color:rgba(124,58,237,.45)}
+  .swleg{position:relative;background:rgba(2,4,10,.86);border:1px solid rgba(124,58,237,.42);padding:15px 15px;box-shadow:0 0 0 1px rgba(255,255,255,.03) inset}
+  .swleg.to{border-color:rgba(0,229,255,.38);background:rgba(3,9,18,.9)}
   .swleg-h{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut);margin-bottom:9px}
   .swleg-b{display:flex;align-items:center;gap:10px}
   .swleg-b input,.swleg-b .swout{flex:1;min-width:0;font-family:var(--hud);font-weight:800;font-size:25px;color:var(--ink);background:transparent;border:none;outline:none;padding:0;-moz-appearance:textfield}
@@ -91,7 +95,7 @@
   .swquote .r{display:flex;justify-content:space-between} .swquote .r b{color:var(--ink)}
   .swfee{font-family:var(--mono);font-size:11px;color:#c4a8ff;background:rgba(124,58,237,.1);border:1px solid #7C3AED;padding:9px 11px;margin:12px 0;line-height:1.5}
   .swfee b{color:#fff}
-  .swexec{width:100%;font-family:var(--hud);font-weight:800;font-size:15px;letter-spacing:.6px;padding:13px;border:none;background:#7C3AED;color:#fff;cursor:pointer;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px))}
+  .swexec{width:100%;font-family:var(--hud);font-weight:900;font-size:15px;letter-spacing:.9px;padding:14px;border:none;background:linear-gradient(90deg,#7C3AED,#00e5ff);color:#fff;cursor:pointer;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));box-shadow:0 10px 35px rgba(124,58,237,.25)}
   .swexec:hover{filter:brightness(1.1)} .swexec:disabled{opacity:.5;cursor:default}
   .swstat{font-family:var(--mono);font-size:11px;color:var(--ink2);margin-top:11px;min-height:15px;word-break:break-word}.swstat .err{color:var(--down)}.swstat a{color:var(--cyan)}
   .swnote{font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:14px;line-height:1.6}
@@ -242,7 +246,7 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:13px}
 
   .card{position:relative;clip-path:var(--chamf);padding:1.5px;background:linear-gradient(135deg,var(--edge),transparent 40%,transparent 60%,var(--edge));contain:layout style paint}
-  .card.in{animation:cin .35s ease}@keyframes cin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+  .card.in{animation:none}@keyframes cin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
   .card[data-tier="hot"]{background:linear-gradient(135deg,var(--lime),transparent 45%,transparent 55%,rgba(170,255,26,.5))}
   .card[data-tier="trk"]{background:linear-gradient(135deg,var(--cyan),transparent 45%,transparent 55%,rgba(0,229,255,.5))}
   .card[data-tier="grad"]{background:linear-gradient(135deg,var(--gold),transparent 45%,transparent 55%,rgba(255,196,0,.5))}
@@ -491,6 +495,7 @@
     <div class="swapsub">Swap SOL &harr; any token via Jupiter routing. Your INTEL FEED stays live on the right.</div>
     <div class="swapwrap">
       <div class="swapcard">
+        <div class="swaproute"><span class="node">WALLET</span><span class="line"></span><span class="node">JUPITER ROUTE</span><span class="line"></span><span class="node">TREASURY 1%</span></div>
         <div class="swseg"><button id="swDirBuy" class="on">BUY</button><button id="swDirSell">SELL</button></div>
 
         <div class="swleg" id="swLegFrom">
@@ -1078,16 +1083,17 @@ function renderTape(){const live=items.filter(isActiveMig);
     return '<span class="ti tbuy'+(up?' up':'')+'" data-mint="'+it.mint+'"><span class="s">$'+esc(d.sym||short(it.mint))+'</span><span class="p">'+fmtK(mc)+'</span>'+chg+'</span>'};
   const html=live.map(make).join('');$('tape').innerHTML=html+html;
   $('tape').querySelectorAll('.tbuy').forEach(el=>el.onclick=()=>{const d=dataByMint.get(el.dataset.mint);if(d)openBuy(d.ev,liveScore(d),'auto')})}
+function isNewDevHot(it,d){return !!(it&&!it.tracked&&!it.winner&&!it.mig&&isHotRunner(d))}
 function applyFilters(){
   items.forEach(it=>{const dd=dataByMint.get(it.mint);
-    if(mcOf(dd)>500000||isRuggedTok(dd)){it.el.style.display='none';return} // past the window ($500k+) or rugged/crashed -> gone from every page
+    if(mcOf(dd)>=500000||isRuggedTok(dd)){it.el.hidden=true;return} // removed from all sections only at rugged/crashed or 500k+
     let show;
-    if(active.tracked)show=it.tracked;
-    else if(active.winner)show=it.winner&&!it.mig&&!isHotRunner(dd); // REPEAT GRAD: prior-grad dev's tokens still live — once one graduates it moves to MIGRATED, once it runs it moves to HOT
-    else if(active.hot)show=isHotRunner(dd);                // HOT: anything running on volume+momentum right now, even after it graduates
-    else if(active.mig)show=it.mig&&isActiveMig(it);
-    else show=true;                                         // ALL (default page): every live card
-    it.el.style.display=show?'':'none'})}
+    if(active.tracked)show=it.tracked;                          // TRACKED owns tracked-dev launches until rugged or 500k+, even if hot/migrated
+    else if(active.winner)show=it.winner&&!it.tracked&&!it.mig&&!isHotRunner(dd); // repeat graduating dev's next launch before hot/migration
+    else if(active.hot)show=isNewDevHot(it,dd);                  // HOT is only new-dev runners during the existing hot window
+    else if(active.mig)show=it.mig&&isActiveMig(it);             // MIGRATED means actual migration only
+    else show=true;
+    it.el.hidden=!show})}
 // highest-scored tokens float to the top — reorder via CSS `order` (no DOM moves = no flicker)
 function resortFeed(){const ranked=items.map(it=>({it,sc:(()=>{const d=dataByMint.get(it.mint);return d?liveScore(d):0})()})).sort((a,b)=>b.sc-a.sc);
   ranked.forEach((r,i)=>{if(r.it.el.style.order!=i)r.it.el.style.order=i})}
@@ -1102,29 +1108,24 @@ function isCrashed(d){if(!d)return false;const m=d.market||{};const ch=m.ch||0;i
   return false}
 function isRuggedTok(d){const dev=d&&d.ev&&d.ev.traderPublicKey;return !!(d&&(d.rugged||isCrashed(d)||(dev&&devRep(dev).tier==='rugger')))}
 function sweepStale(){const now=Date.now();for(let i=items.length-1;i>=0;i--){const it=items[i];const d=dataByMint.get(it.mint);if(!d)continue;
-  const mc=d.mcUsd||(d.market&&d.market.mc)||0;
-  if(mc>500000){drop(it,i,true);continue} // past the alpha window -> off every page (permanent)
-  // TRACKED: stay until rugged or >$500k, EVEN after they go hot or migrate (so a tracked launch is always catchable in TRACKED)
-  if(it.tracked){if(isRuggedTok(d))drop(it,i,true);continue}
-  // MIGRATED: stay until rugged or >$500k (no idle timeout) — they live on the migrate page + ticker
-  if(it.mig){if(isRuggedTok(d))drop(it,i,true);continue}
-  // a hot/winner token now on an AMM or past the ~$69k bonding cap has GRADUATED -> belongs on MIGRATED
-  if(d.live||mc>69000){drop(it,i,true);continue}
-  // DEAD-TOKEN RULE (REPEAT-GRAD/HOT, untracked, unmigrated): only an under-$15k token idle 3+ min is deleted,
-  // and NOT permanently — if its volume returns and it goes hot, the radar can re-add it with the same badge.
+  const mc=mcOf(d);
+  if(mc>=500000){drop(it,i,true);continue} // 500k+ exits every page permanently
+  if(isRuggedTok(d)){drop(it,i,true);continue} // rugged/crashed exits every page permanently
+  if(it.tracked)continue; // tracked-dev launches persist in TRACKED through hot/migration until 500k or rugged
+  if(it.mig)continue;     // migrated tokens persist in MIGRATED until 500k or rugged
   const idle=now-((d&&d.lastActive)||0);
-  if(isRuggedTok(d))drop(it,i,true);
-  else if(mc<15000&&idle>180000)drop(it,i,false)}
-  refreshStats()}
+  // DEAD TOKEN RULE: only under-$15k, no movement for 3 minutes. Non-permanent so a later hot signal can recreate the card.
+  if(mc<15000&&idle>180000)drop(it,i,false)}
+  refreshStats();saveGrid()}
 // live header counts (current grid state, not a running tally)
 function refreshStats(){let t=0,w=0,h=0,m=0;items.forEach(it=>{const d=dataByMint.get(it.mint);if(!d)return;
-  if((d.mcUsd||(d.market&&d.market.mc)||0)>500000||isRuggedTok(d))return;
+  if(mcOf(d)>=500000||isRuggedTok(d))return;
   if(it.tracked)t++;
-  if(it.winner&&!it.mig&&!isHotRunner(d))w++;  // REPEAT GRAD count = live prior-grad tokens only (graduated->MIGRATED, running->HOT)
-  if(isHotRunner(d))h++;                    // HOT count = anything running, even after graduation
+  if(it.winner&&!it.tracked&&!it.mig&&!isHotRunner(d))w++;
+  if(isNewDevHot(it,d))h++;
   if(it.mig&&isActiveMig(it))m++});
   $('sTrk').textContent=t;$('sWin').textContent=w;$('sHot').textContent=h;$('sMig').textContent=m}
-function drop(it,i,permanent){it.el.remove();cardByMint.delete(it.mint);items.splice(i,1);if(!permanent)seen.delete(it.mint)}
+function drop(it,i,permanent){it.el.remove();cardByMint.delete(it.mint);items.splice(i,1);if(permanent)dataByMint.delete(it.mint);else seen.delete(it.mint);saveGrid()}
 setInterval(sweepStale,30000);
 $('pills').addEventListener('click',ev=>{const c=ev.target.closest('.pill');if(!c)return;const k=c.dataset.k;
   // single-select radio: exactly one page is ALWAYS selected (clicking the active one is a no-op, never clears to none)
@@ -1181,10 +1182,10 @@ function addLaunch(e,opts){opts=opts||{};
   if(!e.mint||seen.has(e.mint))return null;
   if(dupKeyLive(e.traderPublicKey,e.symbol||''))return null; // same dev+symbol already on the grid — no duplicate card
   const cat=devCat(e.traderPublicKey);
-  if(!cat&&!opts.force)return null; // GATE: only tracked devs or prior-migration devs
+  if(!cat&&!opts.force&&!opts.hot)return null; // GATE: tracked devs, prior-migration devs, or confirmed hot runners
   seen.add(e.mint);$('empty').style.display='none';
   const sc=scoreLaunch(e),rep=devRep(e.traderPublicKey),tier=opts.tier&&rep.tier!=='rugger'?opts.tier:(rep.tier==='rugger'?'rugger':sc.cat==='ansem'?'ansem':rep.tier==='elite'?'elite':tierOf(sc.cat||'tracked')),rug=rugOf(e),alpha=Math.min(sc.score,95);
-  const trackedFlag=isTracked(e.traderPublicKey)||opts.tracked,winnerFlag=isWinner(e.traderPublicKey)||opts.winner;
+  const trackedFlag=!!(isTracked(e.traderPublicKey)||opts.tracked),winnerFlag=!!(!trackedFlag&&(isWinner(e.traderPublicKey)||opts.winner));
   if(winnerFlag&&!opts.mig)alpha=Math.min(alpha,46); // repeat-grad cap enforced from first paint, not just after live repaint
   if(trackedFlag){nTrk++}
   if(winnerFlag){nWin++}
@@ -1222,18 +1223,18 @@ function addLaunch(e,opts){opts=opts||{};
   items.unshift({el:card,mint:e.mint,tier,tracked:trackedFlag,winner:winnerFlag,mig:!!opts.mig,hot:!!opts.hot});
   queueSafety(e.mint);queueRug(e.mint);queueFeeShare(e.mint);repaintScore(e.mint);refreshHot();
   while(items.length>120){const o=items.pop();cardByMint.delete(o.mint);dataByMint.delete(o.mint);o.el.remove()}
-  applyFilters();return card}
+  applyFilters();saveGrid();return card}
 
 // migration: stamp OUR token in place (keep name/alpha/buy); show a tile only for tracked/winner devs;
 // every other migrating dev is silently credited as a future winner (no flood, no unnamed tiles)
-function stampGraduated(c,mint){c.dataset.tier='grad';const it=items.find(i=>i.mint===mint);if(it){it.mig=true}
+function stampGraduated(c,mint){const it=items.find(i=>i.mint===mint);if(it){it.mig=true;if(!it.tracked){it.tier='grad';c.dataset.tier='grad'}}else{c.dataset.tier='grad'}
   // NOTE: do NOT set it.winner here. it.winner means "dev had already graduated before this token launched"
   // (a true repeat grad). A token graduating *now* belongs on MIGRATED, not REPEAT GRAD, unless its dev was
   // already a known graduate at launch — in which case it.winner was already true from card creation.
   const d=dataByMint.get(mint);if(d)d.migrated=true;
   const chart=c.querySelector('a.btn.ghost');if(chart)chart.href=(d&&d.pairUrl)||('https://dexscreener.com/solana/'+mint);
   const bd=c.querySelector('.badges');if(bd&&!c.querySelector('.bdg.mig')){const s=document.createElement('span');s.className='bdg mig';s.textContent='\u2934 GRADUATED';bd.prepend(s)}
-  c.classList.remove('flash-up');void c.offsetWidth;c.classList.add('flash-up');applyFilters();renderTape()}
+  c.classList.remove('flash-up');void c.offsetWidth;c.classList.add('flash-up');applyFilters();renderTape();saveGrid()}
 function markMigrated(e){const mint=e.mint;if(!mint)return;
   const info=launchInfo.get(mint)||{};const dev=e.traderPublicKey||info.dev||'';
   const relevant=isTracked(dev)||isWinner(dev); // status BEFORE we credit this migration
@@ -1324,7 +1325,7 @@ function liveScore(d){if(!d)return 0;const dev=d.ev&&d.ev.traderPublicKey;
 // HOT = a genuine runner: real volume + momentum right now (independent of dev reputation)
 function mcOf(d){return d?(d.mcUsd||(d.market&&d.market.mc)||0):0}
 // HOT = a genuine runner: real volume + momentum right now (independent of dev reputation)
-function isHotRunner(d){if(!d)return false;if(d.live||mcOf(d)>69000)return false;if(mcOf(d)>500000)return false;return marketBonusOf(d.market||{})>=24}
+function isHotRunner(d){if(!d)return false;if(mcOf(d)>=500000||isRuggedTok(d))return false;return marketBonusOf(d.market||{})>=24}
 function refreshHot(){refreshStats()}
 function repaintScore(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;const ls=liveScore(d);
   const scEl=c.querySelector('[data-sc]');if(scEl)scEl.textContent=ls;
@@ -1350,7 +1351,8 @@ function updateMarket(mint,m){const c=cardByMint.get(mint),d=dataByMint.get(mint
   const lq=c.querySelector('[data-liq]');if(lq&&m.liq)lq.textContent=fmtK(m.liq);
   renderRisk(mint);
   // a winner/tracked token whose market data shows it's now on a live AMM (or past the ~$69k bonding-curve cap) has GRADUATED — move it to MIGRATED even if we never caught the migrate event
-  {const it=items.find(x=>x.mint===mint);if(it&&!it.mig&&(d.live||mcOf(d)>69000)){if(devCat(d.ev&&d.ev.traderPublicKey)||it.winner||it.tracked){stampGraduated(c,mint)}else{const idx=items.indexOf(it);if(idx>=0)drop(it,idx);return}}}
+  // Do not infer migration from Dex live status or market cap. Only mark migrated from the migration event.
+  {const it=items.find(x=>x.mint===mint);if(it&&mcOf(d)>=500000){const idx=items.indexOf(it);if(idx>=0)drop(it,idx,true);return}}
   if(m.mc&&prev&&Math.abs((m.mc-prev)/prev)>0.003){c.classList.remove('flash-up','flash-down');void c.offsetWidth;c.classList.add(m.mc>=prev?'flash-up':'flash-down')}
   repaintScore(mint)}
 
