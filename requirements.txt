@@ -1,0 +1,10 @@
+# ANSTRACK — brain + server runtime dependencies
+# Everything else the project uses is in the Python standard library
+# (http.server, urllib, json, sqlite3, threading, base64, etc.) — no extra installs needed.
+ 
+# Live Pump.fun event stream (PumpPortal websocket) — provides the `websocket` module
+websocket-client>=1.7
+ 
+# Postgres persistence for the vault/registry on Render (optional when running locally;
+# the project falls back to a local JSON/sqlite vault if Postgres isn't configured)
+psycopg2-binary>=2.9
