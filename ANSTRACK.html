@@ -18,6 +18,13 @@
     --chamf:polygon(0 0,calc(100% - 13px) 0,100% 13px,100% 100%,13px 100%,0 calc(100% - 13px));
   }
   *{box-sizing:border-box}
+  /* one themed scrollbar everywhere (matches the intel feed) — never the default OS bar */
+  *{scrollbar-width:thin;scrollbar-color:var(--edge2) transparent}
+  *::-webkit-scrollbar{width:9px;height:9px}
+  *::-webkit-scrollbar-track{background:transparent}
+  *::-webkit-scrollbar-thumb{background:var(--edge2);border-radius:6px}
+  *::-webkit-scrollbar-thumb:hover{background:var(--cyan)}
+  *::-webkit-scrollbar-corner{background:transparent}
   html,body{margin:0;height:100%}
   body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidden;-webkit-font-smoothing:antialiased}
   body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
@@ -57,32 +64,62 @@
   #swapPage::-webkit-scrollbar{width:10px}#swapPage::-webkit-scrollbar-thumb{background:var(--edge2)}
   .swaphead{display:flex;align-items:center;gap:12px;font-family:var(--hud);font-weight:800;font-size:20px;letter-spacing:1px;margin-bottom:6px;flex-wrap:wrap}
   .swapsub{font-family:var(--mono);font-size:11px;color:var(--mut);margin-bottom:18px}
-  .swapwrap{max-width:520px;margin:0 auto}
-  .swapcard{position:relative;border:1px solid rgba(124,58,237,.85);background:radial-gradient(circle at 20% 0,rgba(124,58,237,.28),transparent 34%),linear-gradient(180deg,#111827,#070b15 65%,#050712);padding:18px;clip-path:var(--chamf);box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 24px 80px rgba(0,0,0,.42)}
-  .swapcard::before{content:"";position:absolute;inset:1px;pointer-events:none;clip-path:var(--chamf);background:linear-gradient(135deg,rgba(255,255,255,.08),transparent 32%,rgba(124,58,237,.13));opacity:.9}
-  .swaproute{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;font-family:var(--mono);font-size:10px;color:#c4a8ff;letter-spacing:.8px}
-  .swaproute .node{border:1px solid rgba(124,58,237,.6);background:rgba(124,58,237,.12);padding:6px 10px;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px))}
-  .swaproute .line{height:1px;flex:1;background:linear-gradient(90deg,transparent,#7C3AED,transparent)}
-  .swapdir{display:flex;gap:8px;margin-bottom:14px}
-  .swapdir button{flex:1;font-family:var(--mono);font-size:12px;letter-spacing:.5px;padding:9px;cursor:pointer;border:1px solid var(--edge2);background:rgba(255,255,255,.03);color:var(--ink2);clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px))}
-  .swapdir button.on{background:#7C3AED;color:#fff;border-color:#7C3AED}
-  .swseg{display:flex;gap:6px;margin-bottom:14px}
-  .swseg button{flex:1;font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:8px;cursor:pointer;border:1px solid var(--edge2);background:rgba(255,255,255,.03);color:var(--ink2);clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px))}
-  .swseg button.on{background:#7C3AED;color:#fff;border-color:#7C3AED}
-  .swleg{position:relative;background:rgba(2,4,10,.86);border:1px solid rgba(124,58,237,.42);padding:15px 15px;box-shadow:0 0 0 1px rgba(255,255,255,.03) inset}
-  .swleg.to{border-color:rgba(0,229,255,.38);background:rgba(3,9,18,.9)}
-  .swleg-h{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut);margin-bottom:9px}
+  .swapwrap{max-width:440px;margin:44px auto 0}
+  .swaptitle{font-family:var(--hud);font-weight:800;font-size:19px;letter-spacing:1px;margin:2px 2px 14px}
+  .swapcard{position:relative;border:1px solid rgba(124,58,237,.55);background:linear-gradient(180deg,#0c1322,#070b15);padding:16px;clip-path:var(--chamf)}
+  .swleg{position:relative;background:rgba(2,4,10,.86);border:1px solid var(--edge2);padding:14px 15px}
+  .swleg.to{margin-top:6px}
+  .swleg-h{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut);margin-bottom:9px}
   .swleg-b{display:flex;align-items:center;gap:10px}
   .swleg-b input,.swleg-b .swout{flex:1;min-width:0;font-family:var(--hud);font-weight:800;font-size:25px;color:var(--ink);background:transparent;border:none;outline:none;padding:0;-moz-appearance:textfield}
   .swleg-b input::-webkit-outer-spin-button,.swleg-b input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .swleg-b .swout{color:#c4a8ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .swchip{display:flex;align-items:center;gap:7px;flex:0 0 auto;background:rgba(124,58,237,.14);border:1px solid #7C3AED;padding:6px 12px 6px 7px;border-radius:999px;font-family:var(--hud);font-weight:800;font-size:13px;color:#fff;white-space:nowrap}
+  .swchip{display:flex;align-items:center;gap:7px;flex:0 0 auto;cursor:pointer;background:rgba(124,58,237,.16);border:1px solid #7C3AED;padding:6px 12px 6px 7px;border-radius:999px;font-family:var(--hud);font-weight:800;font-size:13px;color:#fff;white-space:nowrap}
+  .swchip:hover{background:rgba(124,58,237,.28)}
   .swchip-ic{width:22px;height:22px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--violet);color:#fff;overflow:hidden}
-  .swchip-ic.sol{background:linear-gradient(135deg,#00ffa3,#7C3AED)}
+  .swchip-ic.sol{background:linear-gradient(135deg,#00ffa3,#7C3AED)} .swchip-ic.q{background:rgba(124,58,237,.4)}
   .swchip-ic img{width:100%;height:100%;object-fit:cover}
   .swflipwrap{display:flex;justify-content:center;height:0;position:relative;z-index:2}
-  .swflip{width:36px;height:36px;margin-top:-18px;border-radius:10px;border:4px solid var(--panel);background:#7C3AED;color:#fff;font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .swflip{width:34px;height:34px;margin-top:-17px;border-radius:9px;border:4px solid var(--panel);background:#7C3AED;color:#fff;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .swflip:hover{filter:brightness(1.15)}
+  .swca{width:100%;margin-top:12px;font-family:var(--mono);font-size:12px;color:var(--ink);background:#02040a;border:1px solid var(--edge2);padding:11px 12px;outline:none}
+  .swca:focus{border-color:#7C3AED}
+  .swmeta{font-family:var(--mono);font-size:11px;color:var(--ink2);min-height:14px;margin:8px 2px 0}
+  .swset{display:flex;gap:8px;margin:12px 0 4px;flex-wrap:wrap}
+  .swsetf{display:flex;align-items:center;gap:7px;flex:1;min-width:120px;font-family:var(--mono);font-size:10px;letter-spacing:.5px;color:var(--mut);background:#02040a;border:1px solid var(--edge2);padding:8px 11px}
+  .swsetf.wide{flex:2;min-width:170px}
+  .swsetf input{flex:1;min-width:0;font-family:var(--mono);font-size:12px;color:var(--ink);background:transparent;border:none;outline:none;padding:0}
+  .swsetf input[type=number]{max-width:48px}
+  .swcv{margin-left:2px;font-size:9px;opacity:.65}
+  .swtok-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .swtok-head h2{font-family:var(--hud);font-weight:800;font-size:17px;letter-spacing:1px;margin:0;color:var(--ink)}
+  .swtok-x{background:none;border:none;color:var(--ink2);font-size:24px;line-height:1;cursor:pointer;padding:0 4px}
+  .swtok-x:hover{color:var(--ink)}
+  .swtok-search{width:100%;font-family:var(--mono);font-size:13px;color:var(--ink);background:#02040a;border:1px solid var(--edge2);padding:12px 13px;outline:none;margin-bottom:13px}
+  .swtok-search:focus{border-color:var(--cyan)}
+  .swtok-quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .swtok-quick button{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.04);border:1px solid var(--edge2);padding:5px 12px 5px 6px;border-radius:999px;cursor:pointer;font-family:var(--hud);font-weight:800;font-size:12px;color:var(--ink)}
+  .swtok-quick button:hover{border-color:var(--cyan)}
+  .swtok-sec{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut);margin:2px 2px 8px}
+  .swtok-list{display:flex;flex-direction:column;max-height:46vh;overflow-y:auto;margin:0 -6px}
+  .swtok-row{display:flex;align-items:center;gap:12px;padding:9px 8px;cursor:pointer}
+  .swtok-row:hover{background:rgba(0,229,255,.08)}
+  .swti{width:34px;height:34px;border-radius:50%;flex:0 0 auto;object-fit:cover;display:inline-flex;align-items:center;justify-content:center;background:var(--edge2);overflow:hidden}
+  .swti.sol{background:linear-gradient(135deg,#00ffa3,#7C3AED);color:#fff;font-size:15px}
+  .swti.ph{background:var(--violet);color:#fff;font-family:var(--hud);font-weight:800;font-size:14px}
+  .swtok-quick .swti{width:20px;height:20px;font-size:11px}
+  .swtok-meta{min-width:0;flex:1}
+  .swtok-meta .nm{font-family:var(--hud);font-weight:700;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .swtok-meta .sy{font-family:var(--mono);font-size:11px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .swtok-none{font-family:var(--mono);font-size:12px;color:var(--mut);padding:18px 8px;text-align:center}
+  .avw{display:contents}
+  .rquickbtn{margin-left:6px;font-family:var(--hud);font-weight:800;font-size:11px;color:var(--cyan);background:rgba(0,229,255,.1);border:1px solid var(--edge2);padding:2px 8px;cursor:pointer}
+  .rquickbtn:hover{border-color:var(--cyan)}
+  .rquick{display:none;gap:6px;margin-top:9px}
+  .rquick.show{display:flex}
+  .rquick input{flex:1;min-width:0;font-family:var(--mono);font-size:11px;color:var(--ink);background:#02040a;border:1px solid var(--edge2);padding:7px 9px;outline:none}
+  .rquick input:focus{border-color:var(--cyan)}
+  .rquick button{font-family:var(--hud);font-weight:800;font-size:11px;color:var(--bg);background:var(--cyan);border:none;padding:0 13px;cursor:pointer}
   .swfield{margin-bottom:12px}
   .swfield .lbl{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut);margin-bottom:5px;display:flex;justify-content:space-between}
   .swfield input{width:100%;font-family:var(--mono);font-size:15px;color:var(--ink);background:#02040a;border:1px solid var(--edge2);padding:11px 12px;outline:none}
@@ -112,7 +149,7 @@
   .banitem .bhd .bticker{font-family:var(--mono);font-size:11px;color:var(--down);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .toast.dead{background:linear-gradient(135deg,var(--down),rgba(255,59,107,.25))}
   .toast.dead .ic{background:var(--down);color:#fff}
-  .banitem pre{font-family:var(--mono);font-size:10.5px;color:var(--ink2);line-height:1.55;white-space:pre-wrap;margin:0 0 10px;max-height:160px;overflow:auto}
+  .banitem pre{font-family:var(--mono);font-size:10.5px;color:var(--ink2);line-height:1.55;white-space:pre-wrap;margin:0 0 10px}
   .banitem .brow{display:flex;gap:8px;flex-wrap:wrap}
   .banitem .brow button,.banitem .brow a{font-family:var(--mono);font-size:10px;letter-spacing:.5px;padding:7px 12px;cursor:pointer;border:1px solid var(--edge2);background:rgba(255,255,255,.03);color:var(--ink2);text-decoration:none;clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px))}
   .banitem .brow .cp{border-color:var(--cyan);color:var(--cyan)} .banitem .brow .op{border-color:var(--down);color:var(--down)}
@@ -423,6 +460,29 @@
   .toast .x{cursor:pointer;color:var(--mut);font-size:17px;padding:0 2px;align-self:flex-start}.toast .x:hover{color:var(--down)}
 
   @media(max-width:1040px){.shell{grid-template-columns:1fr;grid-template-areas:"top" "tape" "feed"}aside{display:none}.grid{grid-template-columns:1fr}.stats{display:none}#bestPage{grid-template-columns:1fr}.bpside{display:none}}
+  .kolcard{background:linear-gradient(165deg,#0a1020 0%,#05070f 55%,#0c0717 100%);border:1px solid var(--edge);font-family:var(--mono);overflow:hidden}
+  .kolcard .kc-top{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--edge2)}
+  .kc-logo{font-family:var(--hud);font-weight:800;letter-spacing:3px;font-size:15px;color:var(--ink)}
+  .kc-logo b{color:var(--cyan)}
+  .kc-tag{font-family:var(--hud);font-weight:800;font-size:9px;letter-spacing:1.5px;color:var(--bg);background:var(--magenta);padding:4px 9px}
+  .kc-tok{display:flex;align-items:center;gap:13px;padding:15px 16px 8px}
+  .kc-img{width:52px;height:52px;border-radius:50%;border:1px solid var(--edge2);object-fit:cover;background:#02040a;flex:none}
+  .kc-name{font-family:var(--hud);font-weight:800;font-size:19px;color:var(--ink);line-height:1.05}
+  .kc-sym{font-size:13px;color:var(--cyan);margin-top:3px;letter-spacing:1px}
+  .kc-big{display:flex;align-items:baseline;gap:12px;padding:2px 16px 14px}
+  .kc-mc{font-family:var(--hud);font-weight:800;font-size:33px;color:var(--ink)}
+  .kc-ch{font-size:15px;font-weight:800;font-family:var(--hud)}
+  .kc-ch.up{color:var(--up)} .kc-ch.down{color:var(--down)}
+  .kc-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--edge2)}
+  .kc-cell{padding:10px 13px;border-right:1px solid var(--edge2);border-bottom:1px solid var(--edge2)}
+  .kc-cell:nth-child(3n){border-right:none}
+  .kc-cell .k{font-size:8.5px;color:var(--mut);letter-spacing:1.2px;text-transform:uppercase}
+  .kc-cell .v{font-family:var(--hud);font-weight:800;font-size:16px;color:var(--ink);margin-top:4px}
+  .kc-ca{padding:10px 16px;font-size:10px;color:var(--mut);letter-spacing:.5px;word-break:break-all}
+  .kc-ca b{color:var(--ink2);font-weight:600}
+  .kc-foot{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;font-size:8.5px;color:var(--mut);letter-spacing:2px;text-transform:uppercase;border-top:1px solid var(--edge2);background:rgba(0,229,255,.04)}
+  .kol-msg{width:100%;box-sizing:border-box;margin-top:6px;background:#02040a;border:1px solid var(--edge2);color:var(--ink);font-family:var(--mono);font-size:12px;line-height:1.5;padding:10px;min-height:104px;resize:vertical;outline:none}
+  .kol-msg:focus{border-color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -444,7 +504,7 @@
     <div class="solp" id="solPrice">SOL $&mdash;</div>
     <button class="hbtn snd" id="snd" title="alert sound">&#9834;</button>
     <div class="actions">
-      <button class="hbtn swap" id="swapBtn" title="swap tokens \u2014 1% funds AI intel">&#8644; SWAP</button>
+      <button class="hbtn swap" id="swapBtn" title="swap tokens &mdash; 1% funds AI intel">&#8644; SWAP</button>
       <button class="hbtn best" id="bestBtn" title="best graduating devs">&#9733; BEST DEVS</button>
       <button class="hbtn newwal" id="newWalBtn" title="create a brand-new Solana wallet">&#43; CREATE</button>
       <button class="hbtn wallet" id="wbtn"><span class="pd"></span>CONNECT</button>
@@ -471,8 +531,9 @@
 
   <aside>
     <div class="rhead">
-      <div class="t"><span class="x">ANSTRACK</span> INTEL FEED <span class="rbadge" id="ansemBadge"><span class="rd"></span>LINK</span></div>
+      <div class="t"><span class="x">ANSTRACK</span> INTEL FEED <span class="rbadge" id="ansemBadge"><span class="rd"></span>LINK</span><button class="rquickbtn" id="feedQuickBtn" title="instantly add a KOL X account to the feed">+@</button></div>
       <div class="s">auto-intercepted &middot; CAs cross-link to the grid</div>
+      <div class="rquick" id="rquick"><input id="rquickInp" placeholder="@handle to follow" autocomplete="off" spellcheck="false"/><button id="rquickAdd">ADD</button></div>
     </div>
     <div class="rlist" id="ansemList"><div class="rwait"><span class="sp"></span>establishing uplink to @blknoiz06&hellip;</div></div>
   </aside>
@@ -491,39 +552,38 @@
 
   <!-- SWAP PAGE (toggled by SWAP button; replaces the feed area, intel feed rail stays untouched) -->
   <section id="swapPage">
-    <div class="swaphead">&#8644; SWAP <span class="tag" style="background:#7C3AED;color:#fff;font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:3px 8px">INTEL-FUNDED</span></div>
-    <div class="swapsub">Swap SOL &harr; any token via Jupiter routing. Your INTEL FEED stays live on the right.</div>
     <div class="swapwrap">
+      <div class="swaphead">&#8644; SWAP <span class="tag" style="background:#7C3AED;color:#fff;font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:3px 8px">INTEL-FUNDED</span></div>
+      <div class="swapsub">Swap SOL &harr; any token via Jupiter routing. Your INTEL FEED stays live on the right.</div>
       <div class="swapcard">
-        <div class="swaproute"><span class="node">WALLET</span><span class="line"></span><span class="node">JUPITER ROUTE</span><span class="line"></span><span class="node">TREASURY 1%</span></div>
-        <div class="swseg"><button id="swDirBuy" class="on">BUY</button><button id="swDirSell">SELL</button></div>
-
-        <div class="swleg" id="swLegFrom">
+        <div class="swleg">
           <div class="swleg-h"><span id="swPayLbl">You pay</span></div>
-          <div class="swleg-b"><input id="swAmt" type="number" min="0" step="0.01" placeholder="0.0"/><div class="swchip" id="swChipFrom"><div class="swchip-ic sol">\u25ce</div><span>SOL</span></div></div>
+          <div class="swleg-b"><input id="swAmt" type="number" min="0" step="0.01" placeholder="0.0"/><button type="button" class="swchip" id="swChipFrom"><span class="swchip-ic sol">&#9678;</span><span>SOL</span></button></div>
         </div>
-
-        <div class="swflipwrap"><button class="swflip" id="swFlip" title="flip direction">\u2193</button></div>
-
-        <div class="swleg to" id="swLegTo">
-          <div class="swleg-h"><span>You receive (est.)</span></div>
-          <div class="swleg-b"><div class="swout" id="swOut">\u2014</div><div class="swchip" id="swChipTo"><div class="swchip-ic">?</div><span>TOKEN</span></div></div>
+        <div class="swflipwrap"><button type="button" class="swflip" id="swFlip" title="switch direction">&#8645;</button></div>
+        <div class="swleg to">
+          <div class="swleg-h"><span>You receive</span></div>
+          <div class="swleg-b"><div class="swout" id="swOut">0.0</div><button type="button" class="swchip" id="swChipTo"><span>Select token</span></button></div>
         </div>
-
-        <div class="swfield" style="margin-top:14px"><div class="lbl"><span id="swTokLbl">TOKEN (paste contract address)</span></div>
-          <div class="swtok"><div class="ph" id="swTokImg"></div><div style="min-width:0;flex:1"><div class="sy" id="swTokSym">\u2014</div><div class="nm2" id="swTokNm">paste a token CA below</div></div></div>
-          <input id="swTokCA" placeholder="token contract address" style="margin-top:6px" autocomplete="off" spellcheck="false"/>
+        <div class="swmeta" id="swMeta"></div>
+        <div class="swset">
+          <div class="swsetf"><span>Slippage</span><input id="swSlip" type="number" min="0.1" step="0.1" value="1"/><span>%</span></div>
+          <div class="swsetf wide"><span>Fee treasury</span><input id="swTreasury" placeholder="wallet the 1% goes to" autocomplete="off" spellcheck="false"/></div>
         </div>
-        <div class="swfield"><div class="lbl">SLIPPAGE %</div><input id="swSlip" type="number" min="0.1" step="0.1" value="1"/></div>
-        <div class="swfield"><div class="lbl">FEE TREASURY WALLET <span style="color:#7C3AED">where the 1% goes</span></div><input id="swTreasury" placeholder="your treasury wallet address" autocomplete="off" spellcheck="false"/></div>
-        <div class="swquote" id="swQuote"><div class="r"><span>price impact</span><b id="swImpact">\u2014</b></div><div class="r"><span>protocol fee (1%)</span><b id="swFeeAmt">\u2014</b></div></div>
-        <div class="swfee" id="swFee"><b>1% protocol fee</b> funds AI intelligence infrastructure \u2014 routed to the treasury in the same transaction.</div>
-        <button class="swexec" id="swExec">CONNECT WALLET TO SWAP</button>
+        <button class="swexec" id="swExec">Connect wallet to swap</button>
         <div class="swstat" id="swStat"></div>
-        <div class="swnote">99% of your input is swapped; 1% is routed to the protocol treasury in the same transaction. Research tool &mdash; not financial advice. Verify the token before you sign.</div>
+        <div class="swnote">1% funds AI intel infrastructure, routed in the same transaction.</div>
       </div>
     </div>
   </section>
+
+  <div class="scrim" id="swTokScrim"><div class="modal"><div class="mi">
+    <div class="swtok-head"><h2>Select a token</h2><button type="button" class="swtok-x" id="swTokClose">&times;</button></div>
+    <input id="swTokSearch" class="swtok-search" placeholder="Search name / symbol, or paste a contract address" autocomplete="off" spellcheck="false"/>
+    <div class="swtok-quick" id="swTokQuick"></div>
+    <div class="swtok-sec" id="swTokSec">Solana tokens</div>
+    <div class="swtok-list" id="swTokList"></div>
+  </div></div></div>
 </div>
 
 <div class="toasts" id="toasts"></div>
@@ -542,6 +602,21 @@
 </div></div></div>
 
 <!-- WHY -->
+<div class="scrim" id="kolScrim"><div class="modal"><div class="mi">
+  <h2>\ud83d\udce2 KOL OUT <span class="tag">SHILL CARD</span></h2>
+  <div class="note">An ANSTRACK-branded shout card with live token info &amp; our dev scoring. Copy the card, edit the call, and fire it to your KOLs. This same card powers PnL shares later.</div>
+  <div class="kolcard" id="kolCard">
+    <div class="kc-top"><div class="kc-logo"><b>ANS</b>TRACK</div><div class="kc-tag" id="kcTag">LIVE CALL</div></div>
+    <div class="kc-tok"><img class="kc-img" id="kcImg" alt=""/><div class="kc-id"><div class="kc-name" id="kcName">&mdash;</div><div class="kc-sym" id="kcSym">$&mdash;</div></div></div>
+    <div class="kc-big"><div class="kc-mc" id="kcMc">&mdash;</div><div class="kc-ch" id="kcCh"></div></div>
+    <div class="kc-grid" id="kcGrid"></div>
+    <div class="kc-ca">CA&nbsp; <b id="kcCa">&mdash;</b></div>
+    <div class="kc-foot"><span>ANSTRACK \u00b7 ALPHA TERMINAL</span><span id="kcTime"></span></div>
+  </div>
+  <div class="field" style="margin-top:12px">your call (editable)</div>
+  <textarea id="kolMsg" class="kol-msg" spellcheck="false"></textarea>
+  <div class="mrow"><button class="btn ape" id="kolTweet">TWEET \ud835\udd4f \u2192</button><button class="btn" id="kolCopy">COPY CALL</button><button class="btn ghost" id="kolCloseB">CLOSE</button></div>
+</div></div></div>
 <div class="scrim" id="whyScrim"><div class="modal"><div class="mi">
   <h2 id="whyTitle">WHY <span class="tag" style="background:var(--cyan)">BREAKDOWN</span></h2>
   <div class="why-why" id="whyReasons"></div>
@@ -594,10 +669,10 @@
 </div></div></div>
 
 <div class="scrim" id="banScrim"><div class="modal"><div class="mi">
-  <h2>&#9940; BLOCKED UNAUTHORIZED TICKERS <span class="tag" style="background:var(--down)">AUTO-REPORTED</span></h2>
-  <div class="banintro">These tokens used an unauthorized ticker / prohibited term and were kept off your grid. A pump.fun abuse report is ready for each &mdash; copy it and open the token to submit. The more reports the team gets, the faster they act.</div>
+  <h2>&#9940; BLOCKED TICKER <span class="tag" style="background:var(--down)">AUTO-REPORTED</span></h2>
+  <div class="banintro">This token used a prohibited term in its name / ticker and was kept off your grid. A pump.fun abuse report is ready &mdash; copy it and open the token to submit.</div>
   <div id="banList" class="banlist"></div>
-  <div class="mrow"><button class="btn ghost" id="banClear">CLEAR ALL</button><button class="btn ghost" id="banClose">CLOSE</button></div>
+  <div class="mrow"><button class="btn ghost" id="banClose">CLOSE</button></div>
 </div></div></div>
 
 <!-- DEV DETAIL placeholder ends -->
@@ -678,9 +753,14 @@ function renderFeedAccounts(){const el=$('feedAcc');if(!el)return;
   el.innerHTML=feedAccounts.map(h=>{const lock=h===ANSEM_HANDLE;
     return '<div class="fa'+(lock?' lock':'')+'"><span class="fh">@'+esc(h)+'</span>'+(lock?'<span class="ft">MANDATORY \u00b7 ANSEM</span>':'<span class="fx" data-h="'+esc(h)+'" title="remove">\u00d7</span>')+'</div>'}).join('');
   el.querySelectorAll('.fx').forEach(x=>x.onclick=()=>{feedAccounts=feedAccounts.filter(h=>h!==x.dataset.h);saveFeedAccounts();renderFeedAccounts();syncAnsem()})}
-function addFeedAccount(){const inp=$('feedHandle');let h=(inp.value||'').toLowerCase().replace(/^@/,'').replace(/[^a-z0-9_]/g,'');if(!h)return;
-  if(feedAccounts.length>=13){inp.value='';return}
-  if(!feedAccounts.includes(h)){feedAccounts.push(h);saveFeedAccounts();renderFeedAccounts();syncAnsem()}inp.value=''}
+function addFeedHandle(raw){let h=(raw||'').toLowerCase().replace(/^@/,'').replace(/[^a-z0-9_]/g,'');if(!h)return false;
+  if(feedAccounts.length>=13)return false;
+  if(!feedAccounts.includes(h)){feedAccounts.push(h);saveFeedAccounts();renderFeedAccounts();syncAnsem();return true}return false}
+function addFeedAccount(){const inp=$('feedHandle');addFeedHandle(inp.value);inp.value=''}
+// instant KOL add straight from the feed header
+if($('feedQuickBtn'))$('feedQuickBtn').onclick=()=>{const r=$('rquick');if(!r)return;r.classList.toggle('show');if(r.classList.contains('show'))setTimeout(()=>$('rquickInp').focus(),30)};
+if($('rquickAdd'))$('rquickAdd').onclick=()=>{const i=$('rquickInp');if(addFeedHandle(i.value)){i.value='';i.placeholder='added \u2713 \u2014 next?'}};
+if($('rquickInp'))$('rquickInp').addEventListener('keydown',e=>{if(e.key==='Enter'){const i=$('rquickInp');if(addFeedHandle(i.value)){i.value='';i.placeholder='added \u2713 \u2014 next?'}}});
 const setScrim=$('setScrim');
 $('setBtn').onclick=()=>{$('setAmounts').value=(settings.amounts||[]).join(', ');$('setSlip').value=settings.slippage;$('setPrio').value=settings.priority;$('setPool').value=settings.pool;$('setRpc').value=settings.rpc||'';renderDevList();renderFeedAccounts();setScrim.classList.add('show')};
 $('feedAdd').onclick=addFeedAccount;$('feedHandle').addEventListener('keydown',e=>{if(e.key==='Enter')addFeedAccount()});
@@ -715,16 +795,52 @@ function creditWin(w){if(!w)return;localWins.set(w,(localWins.get(w)||0)+1);cons
 function creditRug(w){if(!w)return;localRugs.set(w,(localRugs.get(w)||0)+1);const o={};localRugs.forEach((v,k)=>o[k]=v);store.set('ans_localrugs',o)}
 // remember every launch (mint -> dev/name/symbol/uri) so a later migration can be named & attributed
 const launchInfo=new Map();
+// persist the mint->dev map: a migration of a token we saw launch in ANY past session can then still resolve and
+// credit its dev. this is what self-builds the REPEAT-GRAD (winner) list locally when the server registry is offline.
+(function(){try{const o=store.get('ans_launchinfo_v1',null);if(o)for(const k in o)launchInfo.set(k,o[k])}catch{}})();
+let _liT=null;function saveLaunchInfo(){clearTimeout(_liT);_liT=setTimeout(()=>{try{const o={};[...launchInfo].filter(([k,v])=>v&&v.dev).slice(-3000).forEach(([k,v])=>{o[k]={dev:v.dev,name:v.name||'',symbol:v.symbol||''}});store.set('ans_launchinfo_v1',o)}catch{}},3000)}
 let launchDay=new Date().toDateString();const launchesToday=new Map(); // dev -> # tokens launched today
 function devLaunchesToday(w){return (w&&launchesToday.get(w))||0}
 function recordLaunch(m){if(!m.mint)return;
   const td=new Date().toDateString();if(td!==launchDay){launchDay=td;launchesToday.clear()} // reset at midnight
   if(m.traderPublicKey)launchesToday.set(m.traderPublicKey,(launchesToday.get(m.traderPublicKey)||0)+1);
-  launchInfo.set(m.mint,{dev:m.traderPublicKey||'',name:m.name||'',symbol:m.symbol||'',uri:m.uri||''});if(launchInfo.size>6000){launchInfo.delete(launchInfo.keys().next().value)}radarPush(m.mint)}
-async function syncReg(){let reg=null;try{reg=await fetch('/api/registry',{cache:'no-store'}).then(r=>r.ok?r.json():null)}catch{}
-  if(reg){const n={};Object.keys(reg).forEach(a=>{n[a]={label:reg[a].label||short(a),kind:reg[a].kind||'whale',wins:reg[a].wins||0,rugs:reg[a].rugs||0,rugHistory:reg[a].rug_history||[],score:(reg[a].reputation&&reg[a].reputation.score)||0,hit:(reg[a].reputation&&reg[a].reputation.hit_rate)||0,launches:(reg[a].reputation&&reg[a].reputation.launches)||reg[a].launches||0}});devs=n;mergeTracked();
+  launchInfo.set(m.mint,{dev:m.traderPublicKey||'',name:m.name||'',symbol:m.symbol||'',uri:m.uri||''});if(launchInfo.size>6000){launchInfo.delete(launchInfo.keys().next().value)}saveLaunchInfo();radarPush(m.mint)}
+async function syncReg(){let reg=null,dm=null;
+  try{reg=await fetch('/api/registry',{cache:'no-store'}).then(r=>r.ok?r.json():null)}catch{}
+  try{dm=await fetch('/api/devmetrics',{cache:'no-store'}).then(r=>r.ok?r.json():null)}catch{}
+  if(reg){const n={};Object.keys(reg).forEach(a=>{n[a]={label:reg[a].label||short(a),kind:reg[a].kind||'whale',wins:reg[a].wins||0,rugs:reg[a].rugs||0,rugHistory:reg[a].rug_history||[],score:(reg[a].reputation&&reg[a].reputation.score)||0,hit:(reg[a].reputation&&reg[a].reputation.hit_rate)||0,launches:(reg[a].reputation&&reg[a].reputation.launches)||reg[a].launches||0}});devs=n;
+    // merge the brain's event-sourced dev metrics (migrations = graduations = wins), rebuilt from the immutable
+    // event log so they survive restarts. THIS is the durable repeat-grad source; the registry's own win count is
+    // only credited via an in-memory launch map and can lag. Take the max so a known graduate is never missed.
+    if(dm&&typeof dm==='object'&&!dm.error){Object.keys(dm).forEach(w=>{const m=dm[w]||{};const mig=+m.migrations||0,lau=+m.launches||0,rug=+m.rugs||0;
+      if(!devs[w])devs[w]={label:short(w),kind:'whale',wins:0,rugs:0,rugHistory:[],score:0,hit:0,launches:0};
+      devs[w].wins=Math.max(devs[w].wins||0,mig);devs[w].rugs=Math.max(devs[w].rugs||0,rug);devs[w].launches=Math.max(devs[w].launches||0,lau)})}
+    mergeTracked();
     if($('devList'))renderDevList();if($('bestPage')&&$('bestPage').classList.contains('show')){renderBest();renderTracked()}else renderTracked()}}
-syncReg();setInterval(syncReg,15000);
+syncReg().then(()=>backfillRepeatGrads());setInterval(syncReg,15000);setInterval(backfillRepeatGrads,90000);
+
+// REPEAT GRAD backfill -- the grid is fed only by the LIVE socket, and a graduate dev's launch is dropped by the
+// gate unless that dev is already a known winner at the exact instant they launch. With no backfill, the page sits
+// empty on load until a winner happens to launch live. This pulls recent launches by known graduate devs straight
+// from the event log so REPEAT GRAD fills immediately from your stored history -- the way it used to on startup.
+async function backfillRepeatGrads(){
+  if(!Object.keys(devs).some(w=>isWinner(w)))return;            // no known graduates yet -> nothing to surface
+  let evs=null;
+  try{evs=await fetch('/api/events?type=token_create&limit=600&order=desc',{cache:'no-store'}).then(r=>r.ok?r.json():null)}catch{}
+  if(!Array.isArray(evs))return;
+  const cutoff=Date.now()/1000-21600;                          // only launches from the last 6h (avoid dead tokens)
+  let added=0;
+  for(const ev of evs){
+    if(added>=60)break;
+    const dev=ev&&ev.dev;if(!dev||!isWinner(dev))continue;     // dev must be a prior graduate
+    const mint=ev.mint;if(!mint||seen.has(mint))continue;      // already on the grid
+    const ts=+ev.ts||0;if(ts&&ts<cutoff)continue;
+    const p=ev.payload||{};
+    const e={mint,traderPublicKey:dev,name:p.name||'',symbol:p.symbol||'',uri:p.uri||p.image||''};
+    if(addLaunch(e,{winner:true,backfill:true}))added++;
+  }
+  if(added)applyFilters();
+}
 
 // tracked-devs right sidebar
 function renderTracked(){const el=$('tdList');if(!el)return;const tr=Object.keys(devs).filter(w=>isTracked(w));
@@ -739,7 +855,7 @@ let bestPageOn=false;
 const pumpDevCache=new Map();const pdQ=[];let pdBusy=false;
 function queuePumpDev(w){if(!w||pumpDevCache.has(w))return;pumpDevCache.set(w,null);pdQ.push(w);pumpPd()}
 async function pumpPd(){if(pdBusy||!pdQ.length)return;pdBusy=true;const w=pdQ.shift();
-  try{const r=await fetch('/api/pumpdev?wallet='+w).then(x=>x.json());pumpDevCache.set(w,r&&r.ok?r:{ok:false});if(bestPageOn)patchDevTile(w)}catch{pumpDevCache.set(w,{ok:false})}
+  try{const r=await fetch('/api/pumpdev?wallet='+w).then(x=>x.json());pumpDevCache.set(w,r&&r.ok?r:{ok:false});repaintAvatars(w);if(bestPageOn)patchDevTile(w)}catch{pumpDevCache.set(w,{ok:false})}
   pdBusy=false;setTimeout(pumpPd,500)}
 // behavioral dev intelligence: every number here is traceable to wins/rugs/launches we've observed (explainable, no black box)
 function devStats(w){const d=devs[w]||{};const wins=winsOf(w),rugs=rugsOf(w);
@@ -768,7 +884,9 @@ function bestRows(){const tokMap=devTokenMap();const set=new Set([...Object.keys
   return [...set].filter(w=>w&&rugsOf(w)<1&&winsOf(w)>=1).map(w=>{const wins=winsOf(w);const d=devs[w]||{};
     return {w,wins,tier:wins>=5?'elite':wins>=2?'proven':'winner',label:d.label||short(w),toks:tokMap.get(w)||[],launches:Math.max(d.launches||0,wins),hit:d.hit||0,score:devScore(w),tracked:isTracked(w)}})
     .sort((a,b)=>b.score-a.score||b.wins-a.wins).slice(0,60)}
-function devAvatar(w,size){const pd=pumpDevCache.get(w);const img=pd&&pd.ok&&pd.image;return img?'<img class="bav" src="'+img+'" onerror="this.outerHTML=\'<div class=&quot;bav ph&quot;>'+esc((devs[w]&&devs[w].label||'?').slice(0,2).toUpperCase())+'</div>\'"/>':'<div class="bav ph">'+esc((devs[w]&&devs[w].label||'?').slice(0,2).toUpperCase())+'</div>'}
+function devAvatarInner(w){const pd=pumpDevCache.get(w);const img=pd&&pd.ok&&pd.image;return img?'<img class="bav" src="'+img+'" onerror="this.outerHTML=\'<div class=&quot;bav ph&quot;>'+esc((devs[w]&&devs[w].label||'?').slice(0,2).toUpperCase())+'</div>\'"/>':'<div class="bav ph">'+esc((devs[w]&&devs[w].label||'?').slice(0,2).toUpperCase())+'</div>'}
+function devAvatar(w,size){return '<span class="avw" data-avw="'+esc(w||'')+'">'+devAvatarInner(w)+'</span>'}
+function repaintAvatars(w){if(!w)return;document.querySelectorAll('span.avw[data-avw="'+w.replace(/["\\]/g,'')+'"]').forEach(el=>{el.innerHTML=devAvatarInner(w)})}
 function tileHTML(r,i){const pd=pumpDevCache.get(r.w);const pname=pd&&pd.ok&&pd.username;const foll=pd&&pd.ok&&(pd.followers!=null)?pd.followers:null;const s=devStats(r.w);
   return '<div class="bptile" data-w="'+r.w+'">'+
     '<div class="bphd">'+devAvatar(r.w)+'<div class="bpid"><div class="nm">'+esc(pname||r.label)+' <span class="rk">#'+(i+1)+'</span></div>'+(pname?'<div class="at">@'+esc(pname)+'</div>':'')+'<div class="tier '+(r.tier==='elite'?'elite':'')+'">'+(r.tier==='elite'?'\ud83d\udc51 ELITE':r.tier==='proven'?'\u2726 PROVEN':'WINNER')+'</div></div>'+
@@ -826,23 +944,24 @@ function toggleSwap(on){swapOn=on;$('swapPage').classList.toggle('show',on);
   if(on&&bestPageOn)toggleBest(false);
   document.querySelector('.feed').style.display=on?'none':''; // intel feed rail stays untouched
   $('swapBtn').classList.toggle('on',on);$('swapBtn').innerHTML=on?'\u2190 BACK':'\u21c4 SWAP';
-  if(on){$('swTreasury').value=swTreasury;swPaintWalletBtn()}}
+  if(on){$('swTreasury').value=swTreasury;swPaintWalletBtn();swSyncChips()}}
 $('swapBtn').onclick=()=>toggleSwap(!swapOn);
 function swPaintWalletBtn(){const b=$('swExec');if(b)b.textContent=wallet?'SWAP':'CONNECT WALLET TO SWAP'}
+function swChipIc(t){ // real logo with a guaranteed fallback so a chip never shows a blank circle
+  const url=t.image||t.logoURI||(t.mint?'https://dd.dexscreener.com/ds-data/tokens/solana/'+t.mint+'.png':'');
+  const fb=t.sol?'\u25ce':esc((t.sym||'?').slice(0,1).toUpperCase());
+  const cls='swchip-ic'+(t.sol?' sol':'');
+  if(!url)return '<span class="'+cls+'">'+fb+'</span>';
+  return '<span class="'+cls+'"><img src="'+url+'" onerror="this.parentNode.textContent=\''+fb+'\'"/></span>'}
 function swSyncChips(){const fc=$('swChipFrom'),tc=$('swChipTo');if(!fc||!tc)return;
-  const sol='<div class="swchip-ic sol">\u25ce</div><span>SOL</span>';
-  const tok=swTok?('<div class="swchip-ic">'+(swTok.image?'<img src="'+swTok.image+'" onerror="this.parentNode.textContent=\''+esc((swTok.sym||'?').slice(0,1))+'\'"/>':esc((swTok.sym||'?').slice(0,1)))+'</div><span>$'+esc(swTok.sym)+'</span>'):'<div class="swchip-ic">?</div><span>TOKEN</span>';
+  const cv='<span class="swcv">\u25be</span>';
+  const sol=swChipIc(SW_COMMON[0])+'<span>SOL</span>'+cv;
+  const tok=swTok?(swChipIc(swTok)+'<span>$'+esc(swTok.sym)+'</span>'+cv):'<span>Select token</span>'+cv;
   fc.innerHTML=swDir==='buy'?sol:tok;tc.innerHTML=swDir==='buy'?tok:sol}
-function swSetDir(d){swDir=d;$('swDirBuy').classList.toggle('on',d==='buy');$('swDirSell').classList.toggle('on',d==='sell');
-  $('swPayLbl').textContent=d==='buy'?'You pay (SOL)':'You pay ('+(swTok?('$'+swTok.sym):'TOKEN')+')';
-  $('swTokLbl').textContent=d==='buy'?'BUY THIS TOKEN (paste CA)':'SELL THIS TOKEN (paste CA)';swSyncChips();swQuote()}
-$('swDirBuy').onclick=()=>swSetDir('buy');$('swDirSell').onclick=()=>swSetDir('sell');
+function swSetDir(d){swDir=d;swSyncChips();swQuote()}
 $('swFlip').onclick=()=>swSetDir(swDir==='buy'?'sell':'buy');
-function swPaintTok(msg){const sy=$('swTokSym'),nm=$('swTokNm');
-  if(!swTok){sy.textContent='\u2014';nm.textContent=msg||'paste a token CA below';const c=$('swTokImg');if(c)c.outerHTML='<div class="ph" id="swTokImg"></div>';swSyncChips();return}
-  sy.textContent='$'+swTok.sym;nm.textContent=swTok.name||short(swTok.mint);
-  const cur=$('swTokImg');const img=document.createElement('img');img.id='swTokImg';img.src=swTok.image;img.onerror=function(){this.outerHTML='<div class="ph" id="swTokImg"></div>'};if(cur)cur.replaceWith(img);
-  if(swDir==='sell')$('swPayLbl').textContent='You pay ($'+swTok.sym+')';swSyncChips()}
+$('swChipFrom').onclick=$('swChipTo').onclick=()=>swOpenTokModal();
+function swPaintTok(msg){swSyncChips();const m=$('swMeta');if(m&&!swTok)m.textContent=msg||''}
 async function swResolveToken(ca){ca=(ca||'').trim();
   if(!validPubkey(ca)){swTok=null;swPaintTok();return}
   let decimals=null,sym='',name='',image='';
@@ -850,23 +969,70 @@ async function swResolveToken(ca){ca=(ca||'').trim();
   try{const d=await fetch('https://api.dexscreener.com/latest/dex/tokens/'+ca).then(r=>r.json());const p=(d.pairs||[]).find(x=>x.baseToken&&x.baseToken.address===ca);if(p){sym=p.baseToken.symbol||'';name=p.baseToken.name||'';image=(p.info&&p.info.imageUrl)||''}}catch{}
   if(decimals==null){swTok=null;swPaintTok('couldn\u2019t read that token');return}
   swTok={mint:ca,sym:sym||short(ca),name,decimals,image:image||('https://dd.dexscreener.com/ds-data/tokens/solana/'+ca+'.png')};swPaintTok();swQuote()}
-async function swQuote(){const seq=++swQuoteSeq;swQuoteData=null;$('swImpact').textContent='\u2014';$('swFeeAmt').textContent='\u2014';
-  const amt=parseFloat($('swAmt').value||'0');if(!swTok||!(amt>0)){$('swOut').textContent='\u2014';return}
+// ===== token-select modal: SOL pinned on top, common Solana tokens with real logos, search by name/symbol or paste a CA =====
+const SW_COMMON=[
+ {sym:'SOL',name:'Solana',mint:SOL_MINT,decimals:9,sol:true,logoURI:'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png'},
+ {sym:'USDC',name:'USD Coin',mint:'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',decimals:6,logoURI:'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png'},
+ {sym:'USDT',name:'Tether USD',mint:'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',decimals:6,logoURI:'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/logo.svg'},
+ {sym:'JUP',name:'Jupiter',mint:'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN',decimals:6,logoURI:'https://static.jup.ag/jup/icon.png'},
+ {sym:'BONK',name:'Bonk',mint:'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',decimals:5,logoURI:'https://arweave.net/hQiPZOsRZXGXBJd_82PhVdlM_hACsT_q6wqwf5cSY7I'},
+ {sym:'WIF',name:'dogwifhat',mint:'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',decimals:6,logoURI:'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm/logo.png'},
+ {sym:'JTO',name:'Jito',mint:'jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL',decimals:9,logoURI:'https://metadata.jito.network/token/jto/image'},
+ {sym:'RAY',name:'Raydium',mint:'4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R',decimals:6,logoURI:'https://img-v1.raydium.io/icon/4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R.png'},
+ {sym:'PYTH',name:'Pyth Network',mint:'HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3',decimals:6,logoURI:'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3/logo.svg'}
+];
+let swTokList=SW_COMMON.slice(),swTokFetched=false;
+function swTokImgUrl(t){return t.image||t.logoURI||('https://dd.dexscreener.com/ds-data/tokens/solana/'+t.mint+'.png')}
+function swTokIc(t){const url=swTokImgUrl(t);
+  const fb=t.sol?'<span class=&quot;swti sol&quot;>\u25ce</span>':'<span class=&quot;swti ph&quot;>'+esc((t.sym||'?').slice(0,1).toUpperCase())+'</span>';
+  return '<img class="swti" src="'+url+'" onerror="this.outerHTML=\''+fb+'\'"/>'}
+async function swLoadTokens(){if(swTokFetched)return;swTokFetched=true;
+  try{const r=await fetch('https://tokens.jup.ag/tokens?tags=verified').then(x=>x.ok?x.json():null);
+    if(Array.isArray(r)&&r.length){const byMint={};r.forEach(t=>{if(t.address)byMint[t.address]=t});
+      SW_COMMON.forEach(t=>{const j=byMint[t.mint];if(j&&j.logoURI)t.logoURI=j.logoURI}); // canonical logos for the curated set
+      const have=new Set(SW_COMMON.map(t=>t.mint));const extra=[];
+      for(const t of r){if(!t.address||have.has(t.address)||!t.symbol)continue;have.add(t.address);extra.push({sym:t.symbol,name:t.name||t.symbol,mint:t.address,decimals:t.decimals!=null?t.decimals:9,logoURI:t.logoURI||''});if(extra.length>=3000)break}
+      swTokList=SW_COMMON.concat(extra)}}catch{}
+  const sc=$('swTokScrim');if(sc&&sc.classList.contains('show'))swRenderTokList(($('swTokSearch')||{}).value||'')}
+function swRenderTokList(q){const list=$('swTokList'),sec=$('swTokSec');if(!list)return;q=(q||'').trim();const ql=q.toLowerCase();
+  let rows;
+  if(ql){
+    if(validPubkey(q)&&!swTokList.some(t=>t.mint.toLowerCase()===ql)){rows=[{sym:short(q),name:'Use this contract address',mint:q,custom:true}];if(sec)sec.textContent='Custom token'}
+    else{rows=swTokList.filter(t=>(t.sym||'').toLowerCase().includes(ql)||(t.name||'').toLowerCase().includes(ql)).slice(0,60);if(sec)sec.textContent='Results'}
+  }else{rows=swTokList.slice(0,60);if(sec)sec.textContent='Solana tokens'}
+  list.innerHTML=rows.length?rows.map((t,i)=>'<div class="swtok-row" data-i="'+i+'">'+swTokIc(t)+'<div class="swtok-meta"><div class="nm">'+esc(t.name||t.sym||'?')+'</div><div class="sy">'+esc(t.sym||'')+(t.mint&&!t.sol?'  \u00b7  '+short(t.mint):'')+'</div></div></div>').join(''):'<div class="swtok-none">No tokens found</div>';
+  list.querySelectorAll('.swtok-row').forEach(el=>el.onclick=()=>swPickToken(rows[+el.dataset.i]))}
+function swRenderQuick(){const q=$('swTokQuick');if(!q)return;const picks=SW_COMMON.slice(0,4);
+  q.innerHTML=picks.map((t,i)=>'<button type="button" data-i="'+i+'">'+swTokIc(t)+'<span>'+esc(t.sym)+'</span></button>').join('');
+  q.querySelectorAll('button').forEach(b=>b.onclick=()=>swPickToken(picks[+b.dataset.i]))}
+function swPickToken(t){if(!t)return;
+  if(t.custom){swResolveToken(t.mint);swCloseTok();return}
+  if(t.sol){swTok=null;swSyncChips();swQuote();swCloseTok();return} // SOL is the base leg of every swap
+  swTok={mint:t.mint,sym:t.sym||short(t.mint),name:t.name||'',decimals:t.decimals!=null?t.decimals:9,image:swTokImgUrl(t)};
+  swSyncChips();swQuote();swCloseTok()}
+function swOpenTokModal(){const sc=$('swTokScrim');if(!sc)return;swLoadTokens();if($('swTokSearch'))$('swTokSearch').value='';swRenderQuick();swRenderTokList('');sc.classList.add('show');setTimeout(()=>{if($('swTokSearch'))$('swTokSearch').focus()},40)}
+function swCloseTok(){const sc=$('swTokScrim');if(sc)sc.classList.remove('show')}
+if($('swTokClose'))$('swTokClose').onclick=swCloseTok;
+if($('swTokScrim'))$('swTokScrim').addEventListener('click',e=>{if(e.target.id==='swTokScrim')swCloseTok()});
+if($('swTokSearch'))$('swTokSearch').addEventListener('input',()=>swRenderTokList($('swTokSearch').value));
+async function swQuote(){const seq=++swQuoteSeq;swQuoteData=null;const meta=$('swMeta');if(meta)meta.textContent='';
+  const amt=parseFloat($('swAmt').value||'0');if(!swTok||!(amt>0)){$('swOut').textContent='0.0';return}
   $('swOut').textContent='\u2026';
   const slipBps=Math.max(10,Math.round(parseFloat($('swSlip').value||'1')*100));
   let inputMint,outputMint,amount,feeUiSol=null;
   if(swDir==='buy'){inputMint=SOL_MINT;outputMint=swTok.mint;const lamports=Math.floor(amt*1e9);const feeLamports=Math.floor(lamports*0.01);amount=lamports-feeLamports;feeUiSol=feeLamports/1e9}
   else{inputMint=swTok.mint;outputMint=SOL_MINT;amount=Math.floor(amt*Math.pow(10,swTok.decimals))}
-  if(amount<=0){$('swOut').textContent='\u2014';return}
+  if(amount<=0){$('swOut').textContent='0.0';return}
   try{const q=await fetch(JUP+'/quote?inputMint='+inputMint+'&outputMint='+outputMint+'&amount='+amount+'&slippageBps='+slipBps+'&restrictIntermediateTokens=true').then(r=>r.ok?r.json():null);
     if(seq!==swQuoteSeq)return;if(!q||!q.outAmount){$('swOut').textContent='no route';return}swQuoteData=q;
-    if(swDir==='buy'){const outUi=(+q.outAmount)/Math.pow(10,swTok.decimals);$('swOut').textContent=fmtAmt(outUi)+' $'+swTok.sym;$('swFeeAmt').textContent=feeUiSol.toFixed(4)+' SOL'}
-    else{const outSol=(+q.outAmount)/1e9;$('swOut').textContent=(outSol*0.99).toFixed(4)+' SOL';$('swFeeAmt').textContent=(outSol*0.01).toFixed(4)+' SOL'}
-    const pi=parseFloat(q.priceImpactPct||'0')*100;$('swImpact').textContent=(isFinite(pi)?pi.toFixed(2):'0')+'%'}
+    let feeTxt='';
+    if(swDir==='buy'){const outUi=(+q.outAmount)/Math.pow(10,swTok.decimals);$('swOut').textContent=fmtAmt(outUi)+' $'+swTok.sym;feeTxt=feeUiSol.toFixed(4)+' SOL'}
+    else{const outSol=(+q.outAmount)/1e9;$('swOut').textContent=(outSol*0.99).toFixed(4)+' SOL';feeTxt=(outSol*0.01).toFixed(4)+' SOL'}
+    const pi=parseFloat(q.priceImpactPct||'0')*100;const piTxt=(isFinite(pi)?pi.toFixed(2):'0')+'%';
+    if(meta)meta.textContent='Price impact '+piTxt+'  \u00b7  1% fee '+feeTxt}
   catch{if(seq===swQuoteSeq)$('swOut').textContent='quote failed'}}
 $('swAmt').addEventListener('input',()=>{clearTimeout(swT);swT=setTimeout(swQuote,400)});
 $('swSlip').addEventListener('input',()=>{clearTimeout(swT);swT=setTimeout(swQuote,400)});
-$('swTokCA').addEventListener('input',()=>{clearTimeout(swT);swT=setTimeout(()=>swResolveToken($('swTokCA').value),500)});
 $('swTreasury').addEventListener('input',()=>{swTreasury=($('swTreasury').value||'').trim();store.set('ans_swap_treasury',swTreasury)});
 async function swExecute(){const st=$('swStat');st.textContent='';
   if(!wallet){await connectWallet();paintWallet();swPaintWalletBtn();if(!wallet)return}
@@ -1072,6 +1238,13 @@ setInterval(()=>{for(const it of items){const d=dataByMint.get(it.mint);if(!d||d
 const seen=new Set();const cardByMint=new Map();const dataByMint=new Map();let nTrk=0,nWin=0,nMig=0;
 const items=[];let active={all:true,tracked:false,winner:false,hot:false,mig:false};
 // a migrated token stays on the migration page/ticker only while ACTIVE: under $500k MC and not rugged
+function isMigrated(d){
+  if(!d)return false;
+  if(d.mig||d.migrated)return true;
+  const mc=mcOf(d);
+  const live=!!(d.live||(d.pairUrl&&d.dexId&&!/pumpfun/.test(d.dexId)));
+  return live&&mc>29000; // robust fallback: a real AMM pair past the graduation floor = migrated
+}
 function isActiveMig(it){if(!it||!it.mig)return false;const d=dataByMint.get(it.mint);if(!d)return false;
   const mc=d.mcUsd||(d.market&&d.market.mc)||0;if(mc>500000)return false; // migrated tokens stay until rugged or >$500k
   if(isRuggedTok(d))return false;return true}
@@ -1087,10 +1260,20 @@ function isNewDevHot(it,d){return !!(it&&!it.tracked&&!it.winner&&!it.mig&&isHot
 function applyFilters(){
   items.forEach(it=>{const dd=dataByMint.get(it.mint);
     if(mcOf(dd)>=500000||isRuggedTok(dd)){it.el.hidden=true;return} // removed from all sections only at rugged/crashed or 500k+
+    // REPEAT-GRAD UPGRADE (the fix): it.winner was only ever set at launch, but a dev is usually only KNOWN to be a
+    // prior graduate later — when the brain credits them, a sync lands, or another of their tokens graduates. So a
+    // live token would sit as a plain/hot card and only surface at its own migration. Re-check every pass: the moment
+    // the dev is a known graduate, promote this still-on-curve token into REPEAT GRAD instead of waiting for migration.
+    if(!it.tracked&&!it.mig&&!it.winner){const dv=dd&&dd.ev&&dd.ev.traderPublicKey;if(dv&&isWinner(dv)){it.winner=true;
+      const hb=it.el.querySelector('.heat');if(hb){hb.textContent='REPEAT GRAD';hb.className='heat grad';hb.style.display=''}
+      const bd=it.el.querySelector('.badges');if(bd&&!it.el.querySelector('.bdg.grad')){const s=document.createElement('span');s.className='bdg grad';s.textContent='\u2726 GRAD DEV';bd.prepend(s)}}}
+    // keep the card's HOT badge in sync with HOT-tab membership: an uncategorized runner wears "HOT" only while it
+    // actually qualifies right now, so ALL never shows a HOT-badged card that the HOT tab leaves out
+    if(!it.tracked&&!it.winner&&!it.mig){const hot=isHotRunner(dd);const hb=it.el.querySelector('.heat');if(hb)hb.style.display=hot?'':'none';const hp=it.el.querySelector('.bdg.hot');if(hp)hp.style.display=hot?'':'none'}
     let show;
     if(active.tracked)show=it.tracked;                          // TRACKED owns tracked-dev launches until rugged or 500k+, even if hot/migrated
-    else if(active.winner)show=it.winner&&!it.tracked&&!it.mig&&!isHotRunner(dd); // repeat graduating dev's next launch before hot/migration
-    else if(active.hot)show=isNewDevHot(it,dd);                  // HOT is only new-dev runners during the existing hot window
+    else if(active.winner)show=it.winner&&!it.tracked&&!it.mig&&!isHotRunner(dd); // REPEAT GRAD: repeat-grad launch BEFORE it goes hot or migrates
+    else if(active.hot)show=!it.tracked&&!it.mig&&isHotRunner(dd);                 // HOT: any non-tracked runner — a repeat-grad that goes hot MOVES here
     else if(active.mig)show=it.mig&&isActiveMig(it);             // MIGRATED means actual migration only
     else show=true;
     it.el.hidden=!show})}
@@ -1116,13 +1299,13 @@ function sweepStale(){const now=Date.now();for(let i=items.length-1;i>=0;i--){co
   const idle=now-((d&&d.lastActive)||0);
   // DEAD TOKEN RULE: only under-$15k, no movement for 3 minutes. Non-permanent so a later hot signal can recreate the card.
   if(mc<15000&&idle>180000)drop(it,i,false)}
-  refreshStats();saveGrid()}
+  applyFilters();refreshStats();saveGrid()}
 // live header counts (current grid state, not a running tally)
 function refreshStats(){let t=0,w=0,h=0,m=0;items.forEach(it=>{const d=dataByMint.get(it.mint);if(!d)return;
   if(mcOf(d)>=500000||isRuggedTok(d))return;
   if(it.tracked)t++;
   if(it.winner&&!it.tracked&&!it.mig&&!isHotRunner(d))w++;
-  if(isNewDevHot(it,d))h++;
+  if(!it.tracked&&!it.mig&&isHotRunner(d))h++;
   if(it.mig&&isActiveMig(it))m++});
   $('sTrk').textContent=t;$('sWin').textContent=w;$('sHot').textContent=h;$('sMig').textContent=m}
 function drop(it,i,permanent){it.el.remove();cardByMint.delete(it.mint);items.splice(i,1);if(permanent)dataByMint.delete(it.mint);else seen.delete(it.mint);saveGrid()}
@@ -1155,6 +1338,8 @@ const reportedRacist=new Set();
 let racistReports=(function(){try{return JSON.parse(localStorage.getItem('ans_racist_reports')||'[]')}catch{return []}})();
 // purge stale entries saved by older/broader lists (e.g. BLACK, BROOO) that no longer match the current block list
 racistReports=racistReports.filter(r=>r&&bannedSlur(r.name,r.sym));try{localStorage.setItem('ans_racist_reports',JSON.stringify(racistReports))}catch{}
+// one-time hard reset: clear ALL previously-stored blocks (older builds false-flagged innocent tickers); fresh blocks rebuild from the current exact list
+if(!store.get('ans_ban_reset_v4')){racistReports=[];reportedRacist.clear();try{localStorage.setItem('ans_racist_reports','[]')}catch{}const bc=$('banCount');if(bc){bc.textContent='0';bc.style.display='none'}store.set('ans_ban_reset_v4',true)}
 function racistReportText(m,slur){const dev=m.traderPublicKey||'';
   return 'SUBJECT: Abuse report \u2014 unauthorized ticker / prohibited term in token name\n\n'+
     'Hello pump.fun team,\n\nI\u2019m reporting a token whose name/ticker contains a prohibited term that violates your content policy.\n\n'+
@@ -1174,8 +1359,7 @@ function reportRacist(m,slur){if(!m||!m.mint||reportedRacist.has(m.mint))return;
   try{localStorage.setItem('ans_racist_reports',JSON.stringify(racistReports))}catch{}
   const badge=$('banCount');if(badge){badge.textContent=racistReports.length;badge.style.display=''}
   const pd=pumpDevCache.get(dev);const devName=(pd&&pd.ok&&pd.username)||(devs[dev]&&devs[dev].label&&devs[dev].label!==short(dev)?devs[dev].label:'Unknown dev');
-  toast('dead','\u26d4 UNAUTHORIZED TICKER BLOCKED',devName+' \u00b7 $'+(m.symbol||'?'),null,()=>{renderBanReports();banScrim.classList.add('show')},dev?devAvatar(dev):null);
-  if(banScrim.classList.contains('show'))renderBanReports()}
+  toast('dead','\u26d4 UNAUTHORIZED TICKER BLOCKED',(m.name||'(unnamed)')+' \u00b7 $'+(m.symbol||'?'),null,()=>openBanReport(rep),dev?devAvatar(dev):null)}
 
 function addLaunch(e,opts){opts=opts||{};
   if(bannedSlur(e.name,e.symbol))return null; // hate-speech token: never reaches the grid
@@ -1210,7 +1394,7 @@ function addLaunch(e,opts){opts=opts||{};
     '<div class="risk" data-risk><span class="ck unk">\u2026 verifying on-chain</span></div>'+
     '<div class="mx"><span>VOL 5M <b data-vol>$\u2026</b></span><span>DEV BUY <b>'+fmtK(sc.devSol*(solUsd||0))+'</b></span><span>CURVE <b>'+fmtK(vsol*(solUsd||0))+'</b></span></div>'+
     '<div class="badges">'+(opts.hot&&!cat?'<span class="bdg hot">\ud83d\udd25 HOT RUNNER</span>':'')+(rep.tier?'<span class="bdg '+(rep.tier==='rugger'?'rugger':rep.tier==='elite'?'elite':rep.tier==='tracked'?'trk':'grad')+'">'+(rep.tier==='rugger'?'\u26a0 ':rep.tier==='elite'?'\ud83d\udc51 ':rep.tier==='winner'||rep.tier==='proven'?'\u2726 ':'')+rep.label+'</span>':'')+(trackedFlag&&(rep.tier==='tracked'||rep.tier==='rugger')?'':trackedFlag?'<span class="bdg trk">TRACKED</span>':'')+'</div>'+
-    '<div class="acts"><button class="btn ape act-buy">APE \u2192</button><button class="btn sm act-why">WHY</button>'+(rep.tier==='rugger'?'<button class="btn report sm act-report">\u26a0 REPORT</button>':'')+'<a class="btn ghost sm" href="https://pump.fun/'+e.mint+'" target="_blank" rel="noopener">CHART \u2197</a></div>'+
+    '<div class="acts"><button class="btn ape act-buy">APE \u2192</button><button class="btn sm act-why">WHY</button>'+(rep.tier==='rugger'?'<button class="btn report sm act-report">\u26a0 REPORT</button>':'')+'<a class="btn ghost sm" href="https://pump.fun/'+e.mint+'" target="_blank" rel="noopener">CHART \u2197</a><button class="btn sm act-kol">\ud83d\udce2 KOL OUT</button></div>'+
     '</div>';
   if(rep.serial)card.classList.add('serial');
   hydrateImg(card.querySelector('[data-av]'),e.uri,e.mint,sym,dataByMint.get(e.mint));
@@ -1219,6 +1403,7 @@ function addLaunch(e,opts){opts=opts||{};
   card.querySelector('.act-why').onclick=()=>openWhy(e.mint);
   const rb=card.querySelector('.act-report');if(rb)rb.onclick=()=>openReport(dev,sym);
   card.querySelector('.act-buy').onclick=()=>openBuy(e,alpha,tier==='grad'||opts.mig?'auto':null);
+  {const kb=card.querySelector('.act-kol');if(kb)kb.onclick=()=>openKolOut(e.mint);}
   $('cards').insertBefore(card,$('cards').firstChild);
   items.unshift({el:card,mint:e.mint,tier,tracked:trackedFlag,winner:winnerFlag,mig:!!opts.mig,hot:!!opts.hot});
   queueSafety(e.mint);queueRug(e.mint);queueFeeShare(e.mint);repaintScore(e.mint);refreshHot();
@@ -1231,7 +1416,7 @@ function stampGraduated(c,mint){const it=items.find(i=>i.mint===mint);if(it){it.
   // NOTE: do NOT set it.winner here. it.winner means "dev had already graduated before this token launched"
   // (a true repeat grad). A token graduating *now* belongs on MIGRATED, not REPEAT GRAD, unless its dev was
   // already a known graduate at launch — in which case it.winner was already true from card creation.
-  const d=dataByMint.get(mint);if(d)d.migrated=true;
+  const d=dataByMint.get(mint);if(d)d.mig=d.migrated=true;
   const chart=c.querySelector('a.btn.ghost');if(chart)chart.href=(d&&d.pairUrl)||('https://dexscreener.com/solana/'+mint);
   const bd=c.querySelector('.badges');if(bd&&!c.querySelector('.bdg.mig')){const s=document.createElement('span');s.className='bdg mig';s.textContent='\u2934 GRADUATED';bd.prepend(s)}
   c.classList.remove('flash-up');void c.offsetWidth;c.classList.add('flash-up');applyFilters();renderTape();saveGrid()}
@@ -1350,9 +1535,10 @@ function updateMarket(mint,m){const c=cardByMint.get(mint),d=dataByMint.get(mint
   const ve=c.querySelector('[data-vol]');if(ve)ve.textContent=m.vol?fmtK(m.vol):'$0';
   const lq=c.querySelector('[data-liq]');if(lq&&m.liq)lq.textContent=fmtK(m.liq);
   renderRisk(mint);
-  // a winner/tracked token whose market data shows it's now on a live AMM (or past the ~$69k bonding-curve cap) has GRADUATED — move it to MIGRATED even if we never caught the migrate event
-  // Do not infer migration from Dex live status or market cap. Only mark migrated from the migration event.
+  // 500k+ exits the grid; otherwise re-detect migration robustly (live AMM pair + MC over the graduation floor),
+  // not WS-only — this is the fallback the doc specifies for migrations we never caught on the socket.
   {const it=items.find(x=>x.mint===mint);if(it&&mcOf(d)>=500000){const idx=items.indexOf(it);if(idx>=0)drop(it,idx,true);return}}
+  if(isMigrated(d)){const it=items.find(x=>x.mint===mint);if(it&&!it.mig){it.mig=true;stampGraduated(c,mint)}}
   if(m.mc&&prev&&Math.abs((m.mc-prev)/prev)>0.003){c.classList.remove('flash-up','flash-down');void c.offsetWidth;c.classList.add(m.mc>=prev?'flash-up':'flash-down')}
   repaintScore(mint)}
 
@@ -1613,17 +1799,14 @@ function toast(kind,title,text,mint,onClick,avatar){const wrap=$('toasts');const
   ping(true)}
 // blocked-racist-token reports
 const banScrim=$('banScrim');
-function renderBanReports(){const el=$('banList');if(!el)return;
-  if(!racistReports.length){el.innerHTML='<div class="muted">none blocked yet</div>';return}
-  el.innerHTML=racistReports.map((r,i)=>{
-    const pd=pumpDevCache.get(r.dev);const devName=(pd&&pd.ok&&pd.username)||(devs[r.dev]&&devs[r.dev].label&&devs[r.dev].label!==short(r.dev)?devs[r.dev].label:'Unknown dev');
-    return '<div class="banitem"><div class="bhd">'+(r.dev?devAvatar(r.dev):'<div class="bav ph">?</div>')+'<div class="bnmwrap"><span class="bdevname">'+esc(devName)+'</span><span class="bticker">$'+esc(r.sym||'?')+' \u2014 '+esc(r.name||'(unnamed)')+'</span></div></div>'+
-    '<pre data-rep="'+i+'">'+esc(r.report)+'</pre><div class="brow"><a class="tw" href="'+esc(racistTweetUrl(r))+'" target="_blank" rel="noopener">\ud83d\udc26 TWEET @PUMPDOTFUN</a><button class="cp" data-cp="'+i+'">COPY REPORT</button><a class="op" href="https://pump.fun/'+r.mint+'" target="_blank" rel="noopener">OPEN ON PUMP.FUN</a></div></div>'}).join('');
-  el.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>{const r=racistReports[+b.dataset.cp];if(r){navigator.clipboard?.writeText(r.report);b.textContent='COPIED \u2713';setTimeout(()=>b.textContent='COPY REPORT',1500)}})}
-// (header ⛔ button removed — the blocked-token modal opens from the popup toast)
+function openBanReport(rep){const el=$('banList');if(!el||!rep)return;
+  const pd=pumpDevCache.get(rep.dev);const devName=(pd&&pd.ok&&pd.username)||(devs[rep.dev]&&devs[rep.dev].label&&devs[rep.dev].label!==short(rep.dev)?devs[rep.dev].label:'Unknown dev');
+  el.innerHTML='<div class="banitem"><div class="bhd">'+(rep.dev?devAvatar(rep.dev):'<div class="bav ph">?</div>')+'<div class="bnmwrap"><span class="bdevname">'+esc(devName)+'</span><span class="bticker">$'+esc(rep.sym||'?')+' \u2014 '+esc(rep.name||'(unnamed)')+'</span></div></div>'+
+    '<pre>'+esc(rep.report)+'</pre><div class="brow"><a class="tw" href="'+esc(racistTweetUrl(rep))+'" target="_blank" rel="noopener">\ud83d\udc26 TWEET @PUMPDOTFUN</a><button class="cp" id="banCopyOne">COPY REPORT</button><a class="op" href="https://pump.fun/'+rep.mint+'" target="_blank" rel="noopener">OPEN ON PUMP.FUN</a></div></div>';
+  const cb=$('banCopyOne');if(cb)cb.onclick=()=>{navigator.clipboard?.writeText(rep.report);cb.textContent='COPIED \u2713';setTimeout(()=>cb.textContent='COPY REPORT',1500)};
+  banScrim.classList.add('show')}
 $('banClose').onclick=()=>banScrim.classList.remove('show');
 banScrim.onclick=e=>{if(e.target===banScrim)banScrim.classList.remove('show')};
-$('banClear').onclick=()=>{racistReports=[];reportedRacist.clear();try{localStorage.removeItem('ans_racist_reports')}catch{}; renderBanReports()};
 
 // ===== watch Ansem's wallet for buys + incoming transfers (free, via Solana RPC) =====
 const seenSigs=new Set();let watchInit=false;
@@ -1664,6 +1847,38 @@ setInterval(watchWallets,12000);setTimeout(watchWallets,4500);
 
 // ===== websocket (free: new tokens + migrations only) =====
 let ws,retry=0;
+function openKolOut(mint){const d=dataByMint.get(mint);if(!d)return;const e=d.ev||{};const dev=e.traderPublicKey||'';
+  const li=(typeof launchInfo!=='undefined'&&launchInfo.get)?(launchInfo.get(mint)||{}):{};
+  const sym=(d.sym||li.symbol||e.symbol||short(mint)).toUpperCase();
+  const name=li.name||e.name||sym;
+  const mc=d.mcUsd||(d.market&&d.market.mc)||0;
+  const ch=(d.market&&d.market.ch!=null)?d.market.ch:null;
+  const liq=(d.market&&d.market.liq)||0;
+  const st=devStats(dev),sc=Math.round(devScore(dev));
+  $('kcName').textContent=name;$('kcSym').textContent='$'+sym;
+  $('kcMc').textContent=mc?fmtK(mc):'\u2014';
+  const ce=$('kcCh');if(ch!=null){const up=ch>=0;ce.textContent=(up?'\u25b2 ':'\u25bc ')+Math.abs(ch).toFixed(1)+'%';ce.className='kc-ch '+(up?'up':'down')}else{ce.textContent='';ce.className='kc-ch'}
+  $('kcCa').textContent=mint;
+  $('kcTime').textContent=new Date().toLocaleString();
+  const cat=devCat(dev);$('kcTag').textContent=cat==='ansem'?'ANSEM PICK':cat==='winner'?'REPEAT GRAD':cat==='tracked'?'TRACKED DEV':'LIVE CALL';
+  const img=$('kcImg');const cands=(d.imgCands||[]).concat((d.market&&d.market.img)?[d.market.img]:[],['https://dd.dexscreener.com/ds-data/tokens/solana/'+mint+'.png']);
+  img.onerror=function(){this.style.visibility='hidden'};img.style.visibility='visible';img.src=cands[0]||'';
+  const cells=[['DEV SCORE',sc+'/100'],['GRADS',st.wins],['GRAD RATE',Math.round(st.gradRate*100)+'%'],['RUG RATE',Math.round(st.rugRate*100)+'%'],['LIQUIDITY',liq?fmtK(liq):'\u2014'],['BEST ATH',st.bestAth?fmtK(st.bestAth):'\u2014']];
+  $('kcGrid').innerHTML=cells.map(c=>'<div class="kc-cell"><div class="k">'+c[0]+'</div><div class="v">'+esc(''+c[1])+'</div></div>').join('');
+  const chTxt=ch!=null?((ch>=0?'\u25b2':'\u25bc')+Math.abs(ch).toFixed(1)+'%'):'';
+  const msg='\ud83d\udce2 $'+sym+' \u2014 ANSTRACK ALPHA\n'+
+    'MC '+(mc?fmtK(mc):'?')+(chTxt?' ('+chTxt+')':'')+(liq?' \u00b7 LP '+fmtK(liq):'')+'\n'+
+    'DEV: '+st.wins+' grad'+(st.wins===1?'':'s')+' \u00b7 '+Math.round(st.gradRate*100)+'% grad rate \u00b7 score '+sc+'/100\n'+
+    'CA: '+mint+'\n'+
+    'caught live on ANSTRACK \u00b7 NFA';
+  $('kolMsg').value=msg;
+  $('kolScrim').classList.add('show');
+}
+$('kolCopy').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText($('kolMsg').value);const b=$('kolCopy');b.textContent='COPIED \u2713';setTimeout(()=>b.textContent='COPY CALL',1200)};
+$('kolTweet').onclick=()=>window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent($('kolMsg').value),'_blank');
+$('kolCloseB').onclick=()=>$('kolScrim').classList.remove('show');
+$('kolScrim').onclick=e=>{if(e.target===$('kolScrim'))$('kolScrim').classList.remove('show')};
+
 function connect(){$('connTxt').textContent='CONNECTING';$('ldot').className='ldot';try{ws=new WebSocket('wss://pumpportal.fun/api/data')}catch{return sched()}
   ws.onopen=()=>{retry=0;$('ldot').className='ldot on';$('connTxt').textContent='ONLINE';ws.send(JSON.stringify({method:'subscribeNewToken'}));ws.send(JSON.stringify({method:'subscribeMigration'}))};
   ws.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch{return}

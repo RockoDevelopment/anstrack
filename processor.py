@@ -9,6 +9,11 @@ Run modes:
   python processor.py once    -- start streams, wait a beat, run a single cycle
   python processor.py loop    -- start streams, run a cycle every CYCLE_SECONDS
 """
+# console output -> UTF-8 so a star/emoji in any log line can't crash a print on a Windows (cp1252) console
+import sys as _sys
+for _s in (_sys.stdout, _sys.stderr):
+    try: _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception: pass
 import sys
 import threading
 import time

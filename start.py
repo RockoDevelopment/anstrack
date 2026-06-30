@@ -15,7 +15,13 @@ On Render:     start command =  python start.py
 
 Ctrl+C stops both cleanly.
 """
+# console output -> UTF-8 so a star/emoji in any log line can't crash a print on a Windows (cp1252) console
+import sys as _sys
+for _s in (_sys.stdout, _sys.stderr):
+    try: _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception: pass
 import os, sys, subprocess, threading, time, signal
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")  # children (server.py, processor.py) inherit UTF-8 stdio
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PY = sys.executable or "python"

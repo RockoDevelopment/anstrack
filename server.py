@@ -14,6 +14,11 @@ The brain credits devs on migration (ingestion/pumpfun.py). This server lets you
 those devs appear live in the terminal, and lets wallets you add in the UI persist into
 the same file the brain reads -- one watchlist, both directions.
 """
+# console output -> UTF-8 so a star/emoji in any log line can't crash a print on a Windows (cp1252) console
+import sys as _sys
+for _s in (_sys.stdout, _sys.stderr):
+    try: _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception: pass
 import json
 import hashlib
 import re

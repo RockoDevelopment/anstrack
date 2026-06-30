@@ -124,6 +124,16 @@ def aggregate_from_log(dev, now=None):
         if now is not None and e["ts"] > now:
             continue
         agg_apply(agg, e)
+    # migration/rug events frequently carry no deployer wallet, so they never show up under query(dev=...).
+    # Attribute them by mint: any migration/rug of a token THIS dev launched is this dev's win/rug. Durable,
+    # rebuildable from the log, and the reason graduates reappear in abundance right after a restart.
+    for mint in list(agg["launch_ts"].keys()):
+        for e in event_log.query(mint=mint, types=["migration", "rug"], order="asc"):
+            if now is not None and e["ts"] > now:
+                continue
+            if e.get("dev"):  # already folded above via query(dev=...)
+                continue
+            agg_apply(agg, e)
     return agg
 
 

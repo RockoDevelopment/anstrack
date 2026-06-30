@@ -170,23 +170,31 @@ class PumpFunIngester(StreamingIngester):
         # the compounding the vault philosophy describes: the brain learns who cooks.
         dev = self._launch_devs.get(mint, "")
         promoted = ""
+        win_line = ""
         if dev:
             existing = self.registry.lookup(dev)  # also refreshes last_seen
             note = f"token {mint[:8]} graduated {datetime.now().date()}"
             self.registry.record_win(dev, note=note)
             updated = self.registry.lookup(dev) or {}
             promoted = (f"  DEV CREDITED: {updated.get('label', dev[:6])} "
-                        f"now {updated.get('wins', 1)}★" + ("" if existing else " (NEW tracked dev)"))
-            print(f"  [pumpfun] migration win -> {dev[:8]} ({updated.get('wins',1)}★)"
-                  + (" [new]" if not existing else ""))
+                        f"now {updated.get('wins', 1)}\u2605" + ("" if existing else " (NEW tracked dev)"))
+            win_line = (f"  [pumpfun] migration win -> {dev[:8]} ({updated.get('wins',1)}\u2605)"
+                        + (" [new]" if not existing else ""))
 
-        title = f"[MIGRATION] {mint[:8]} graduated to PumpSwap/Raydium" + promoted
-        # EVENT LOG: a migration is a dev "win" — recorded immutably for replay/metrics.
+        # EVENT LOG FIRST: write the immutable migration record BEFORE any console output. A graduation must never
+        # be lost to a Windows console that can't encode a star/emoji on a cosmetic log line (that exact crash was
+        # aborting the stream every few seconds and dropping wins from the log the brain/devmetrics rebuild from).
         try:
             import event_log
             event_log.append("migration", mint=mint, dev=(dev or None), payload={"dev_credited": bool(dev)})
         except Exception:
             pass
+        if win_line:
+            try:
+                print(win_line)
+            except Exception:
+                pass
+        title = f"[MIGRATION] {mint[:8]} graduated to PumpSwap/Raydium" + promoted
         self._emit(Signal(
             source    = "pumpfun/migration",
             title     = title,

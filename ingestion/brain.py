@@ -177,6 +177,13 @@ def _on_snapshot(ev):
 
 def _on_migration(ev):
     dev = ev.get("dev")
+    if not dev:
+        # migration events usually omit the deployer wallet; recover it from the token's launch (held in token
+        # memory, set by the token_create event earlier in the log). This makes graduations credit the right dev on
+        # every rebuild from the log alone -- not dependent on a live in-memory launch map that's empty after restart.
+        mint = ev.get("mint")
+        t = _token.get(mint) if mint else None
+        dev = (t or {}).get("dev")
     if dev:
         dev_intelligence.agg_apply(_dev_agg(dev), ev)
     t = _touch_token(ev)
@@ -191,6 +198,10 @@ def _on_migration(ev):
 
 def _on_rug(ev):
     dev = ev.get("dev")
+    if not dev:
+        mint = ev.get("mint")
+        t = _token.get(mint) if mint else None
+        dev = (t or {}).get("dev")
     if dev:
         dev_intelligence.agg_apply(_dev_agg(dev), ev)
     t = _touch_token(ev)
