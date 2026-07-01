@@ -57,8 +57,6 @@ def _heuristic_score(evt: Dict, dev_flag: Dict = None) -> int:
     if init > 0:     score += 10
     if 25 <= mc <= 120: score += 15
 
-    # Tracked wallet bump. A graduated dev (>=1 prior migration) is the strongest free
-    # repeat signal we have, so scale it: +30 for one graduation, up to +45.
     if dev_flag:
         wins = int(dev_flag.get("wins", 0) or 0)
         if wins >= 1:
@@ -76,10 +74,7 @@ class PumpFunIngester(StreamingIngester):
         super().__init__()
         self.registry = registry or WalletRegistry()
         self.api_key  = getattr(config, "PUMPPORTAL_API_KEY", "")
-        # Only follow wallet trades if we have a key AND there are funded watch targets.
         self.follow_wallets = bool(self.api_key) and getattr(config, "ENABLE_WALLET_TRADES", False)
-        # Remember which dev launched each mint so a later migration can credit them.
-        # Bounded so a long-running listener never grows unbounded (oldest mints drop).
         self._launch_devs: "OrderedDict[str, str]" = OrderedDict()
         self._launch_devs_max = 20000
 
@@ -88,15 +83,12 @@ class PumpFunIngester(StreamingIngester):
     def _on_new_token(self, evt: Dict) -> None:
         dev = evt.get("traderPublicKey", "")
         mint = evt.get("mint", "")
-        # Remember who launched this mint, for win-crediting on a future migration.
         if mint and dev:
             self._launch_devs[mint] = dev
             self._launch_devs.move_to_end(mint)
             while len(self._launch_devs) > self._launch_devs_max:
                 self._launch_devs.popitem(last=False)
         dev_flag = flag(dev, self.registry) if dev else {}
-        # Learn the dev's launch cadence (only for devs we already know) so reputation
-        # can weigh graduations against total launches over time.
         if dev and dev_flag:
             try:
                 self.registry.record_launch(dev)
@@ -105,7 +97,6 @@ class PumpFunIngester(StreamingIngester):
         name = evt.get("name", "") or "(unnamed)"
         sym  = evt.get("symbol", "")
 
-        # EVENT LOG: immutable record of the launch (dev<->mint association is implicit here).
         try:
             import event_log
             event_log.append("token_create", mint=mint, dev=(dev or None), payload={
@@ -161,18 +152,11 @@ class PumpFunIngester(StreamingIngester):
 
     def _on_migration(self, evt: Dict) -> None:
         mint = evt.get("mint", "")
-
-        # Self-building watchlist: a migration means this token survived the bonding
-        # curve -- the strongest free on-chain signal that the dev can launch a runner.
-        # Credit the dev who launched it. If they're new, this auto-adds them as a
-        # tracked dev; if they're already tracked, their win count climbs (and the
-        # heuristic gives their next launch a bigger attention bump). This is exactly
-        # the compounding the vault philosophy describes: the brain learns who cooks.
         dev = self._launch_devs.get(mint, "")
         promoted = ""
         win_line = ""
         if dev:
-            existing = self.registry.lookup(dev)  # also refreshes last_seen
+            existing = self.registry.lookup(dev)
             note = f"token {mint[:8]} graduated {datetime.now().date()}"
             self.registry.record_win(dev, note=note)
             updated = self.registry.lookup(dev) or {}
@@ -181,9 +165,6 @@ class PumpFunIngester(StreamingIngester):
             win_line = (f"  [pumpfun] migration win -> {dev[:8]} ({updated.get('wins',1)}\u2605)"
                         + (" [new]" if not existing else ""))
 
-        # EVENT LOG FIRST: write the immutable migration record BEFORE any console output. A graduation must never
-        # be lost to a Windows console that can't encode a star/emoji on a cosmetic log line (that exact crash was
-        # aborting the stream every few seconds and dropping wins from the log the brain/devmetrics rebuild from).
         try:
             import event_log
             event_log.append("migration", mint=mint, dev=(dev or None), payload={"dev_credited": bool(dev)})
@@ -202,7 +183,7 @@ class PumpFunIngester(StreamingIngester):
             content   = (f"Token {mint} migrated off the bonding curve. Survived to graduation.\n"
                          f"Launching dev: {dev or 'unknown (launched before listener start)'}\n"
                          f"{promoted.strip()}\nRaw: {json.dumps(evt)[:400]}"),
-            score_raw = 100,  # graduating is a strong survival signal
+            score_raw = 100,
             meta      = {"event": "migration", "mint": mint, "dev": dev,
                          "dev_credited": bool(dev), "ts": datetime.now().isoformat()},
         ))
@@ -211,10 +192,9 @@ class PumpFunIngester(StreamingIngester):
         wallet = evt.get("traderPublicKey", "")
         wflag  = flag(wallet, self.registry)
         if not wflag:
-            return  # only care about watched wallets here
+            return
         mint = evt.get("mint", "")
         side = evt.get("txType", "")
-        # EVENT LOG: an observed trade by a tracked wallet (carries an mc point for time-series).
         try:
             import event_log
             event_log.append("trade", mint=mint, dev=wallet, payload={
@@ -242,46 +222,56 @@ class PumpFunIngester(StreamingIngester):
             self._on_migration(msg)
         elif tx in ("buy", "sell"):
             self._on_account_trade(msg)
-        # subscription confirmations and unknowns are ignored
 
-    # ---- stream loop ----------------------------------------------------
+    # ---- stream loop with robust reconnection ----------------------------------------------------
 
     def start_stream(self) -> None:
         if websocket is None:
             raise RuntimeError("websocket-client not installed. Run: pip install websocket-client")
 
-        url = WS_URL_KEYED.format(key=self.api_key) if self.follow_wallets else WS_URL_FREE
-        ws = websocket.create_connection(url, timeout=30)
-        print(f"  [pumpfun] connected to {url.split('?')[0]}")
-
-        # All subscriptions go on this ONE connection (PumpPortal rule).
-        ws.send(json.dumps({"method": "subscribeNewToken"}))
-        ws.send(json.dumps({"method": "subscribeMigration"}))
-        if self.follow_wallets:
-            watch = self.registry.watched_for_trades()
-            if watch:
-                ws.send(json.dumps({"method": "subscribeAccountTrade", "keys": watch}))
-                print(f"  [pumpfun] following {len(watch)} watched wallets (metered)")
-
+        reconnect_delay = 5
         while self._running:
+            ws = None
             try:
-                raw = ws.recv()
+                url = WS_URL_KEYED.format(key=self.api_key) if self.follow_wallets else WS_URL_FREE
+                print(f"  [pumpfun] connecting to {url.split('?')[0]} ...")
+                ws = websocket.create_connection(url, timeout=30)
+                print(f"  [pumpfun] connected")
+
+                ws.send(json.dumps({"method": "subscribeNewToken"}))
+                ws.send(json.dumps({"method": "subscribeMigration"}))
+                if self.follow_wallets:
+                    watch = self.registry.watched_for_trades()
+                    if watch:
+                        ws.send(json.dumps({"method": "subscribeAccountTrade", "keys": watch}))
+                        print(f"  [pumpfun] following {len(watch)} watched wallets (metered)")
+
+                reconnect_delay = 5  # reset on success
+
+                while self._running:
+                    try:
+                        raw = ws.recv()
+                        if raw:
+                            self._dispatch(json.loads(raw))
+                    except Exception as e:
+                        print(f"  [pumpfun] recv error: {e}")
+                        break
             except Exception as e:
-                print(f"  [pumpfun] recv error: {e}")
+                print(f"  [pumpfun] connection failed: {e}")
+            
+            if ws:
+                try:
+                    ws.close()
+                except Exception:
+                    pass
+
+            if not self._running:
                 break
-            if not raw:
-                continue
-            try:
-                self._dispatch(json.loads(raw))
-            except json.JSONDecodeError:
-                continue
-        try:
-            ws.close()
-        except Exception:
-            pass
+            print(f"  [pumpfun] reconnecting in {reconnect_delay}s...")
+            time.sleep(reconnect_delay)
+            reconnect_delay = min(reconnect_delay * 2, 60)
 
-
-# Convenience for a standalone smoke test: prints launches for ~30s.
+# Convenience for a standalone smoke test
 if __name__ == "__main__":
     ing = PumpFunIngester()
     ing.start_background()
