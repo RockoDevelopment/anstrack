@@ -1462,13 +1462,21 @@ function safetyBonusOf(s){if(!s)return 0;let b=0;
 // STAR = the creator has a pump.fun fee-sharing config on-chain (creator fees routed to
 // liquidity/shareholders via the PumpFees program). Detected server-side by checking the
 // sharing-config PDA exists. This is the real "auto add liquidity via SDK" signal.
-function hasStar(d){return !!(d&&d.feeShare===true)}
+function hasStar(d){return !!(d&&(d.feeShare===true||(d.verified&&d.verified.star)))}
 // The 6 core safety checks (the star is the separate 7th). UNVERIFIED counts as NOT passed,
 // so a token can't sit high while its safety is unknown.
+// Latch permanent on-chain facts high: once mint/freeze are revoked, or DexScreener links/data
+// have appeared, or the LP-secured star is seen, they can never truly reverse — so a failed or
+// empty re-fetch must not un-verify them and collapse the ceiling. realVol is intentionally NOT
+// latched: real 5m volume legitimately comes and goes, and a dying token SHOULD lose that check.
+function latchVerified(d){const v=d.verified||(d.verified={mint:false,freeze:false,dexLinks:false,dexLive:false,star:false});const s=d.safety||{};
+  if(s.mintRev===true)v.mint=true;if(s.freezeRev===true)v.freeze=true;
+  if(d.dexLinks)v.dexLinks=true;if(d.dexLive)v.dexLive=true;if(d.feeShare===true)v.star=true;return v}
 function coreChecks(d){const s=d.safety||{};const mkt=d.market||{};const devBuyUsd=(d.devSol||0)*(solUsd||0);
   const realVol=(mkt.vol>0)&&(devBuyUsd<=0?mkt.vol>=2000:mkt.vol>devBuyUsd*1.5);
-  return {mint:s.mintRev===true,freeze:s.freezeRev===true,top:(s.top!=null&&s.top<=25),
-          dexLinks:!!d.dexLinks,dexLive:!!d.dexLive,realVol:!!realVol}}
+  const v=latchVerified(d);
+  return {mint:(s.mintRev===true)||v.mint,freeze:(s.freezeRev===true)||v.freeze,top:(s.top!=null&&s.top<=25),
+          dexLinks:(!!d.dexLinks)||v.dexLinks,dexLive:(!!d.dexLive)||v.dexLive,realVol:!!realVol}}
 function corePass(d){const c=coreChecks(d);return (c.mint?1:0)+(c.freeze?1:0)+(c.top?1:0)+(c.dexLinks?1:0)+(c.dexLive?1:0)+(c.realVol?1:0)}
 function allChecks(d){const dev=d&&d.ev&&d.ev.traderPublicKey;return corePass(d)===6&&!(dev&&devRep(dev).tier==='rugger')}
 // ceiling rises as checks are verified; you cannot reach 95 without all 6, nor 100 without the star
@@ -1532,7 +1540,13 @@ async function checkSafety(mint){let mintRev=null,freezeRev=null,top=null,got=fa
     if(pi){got=true;mintRev=!pi.mintAuthority;freezeRev=!pi.freezeAuthority;const supply=+(pi.supply||0);
       try{const la=await rpc('getTokenLargestAccounts',[mint]);if(la&&la.value&&la.value[0]&&supply){top=+(((+la.value[0].amount)/supply)*100).toFixed(1)}}catch{}}
   }catch{}
-  const safety={mintRev,freezeRev,top};const d=dataByMint.get(mint);if(d)d.safety=safety;renderRisk(mint);if(got)repaintScore(mint);if(typeof refreshLookup==='function')refreshLookup(mint);return got}
+  const d=dataByMint.get(mint);
+  if(d){const prev=d.safety||{mintRev:null,freezeRev:null,top:null};
+    // merge only fields that actually returned this round — a failed/empty RPC round must NOT null
+    // out a prior good reading (that null-clobber was collapsing the score ceiling to a phantom low)
+    d.safety={mintRev:mintRev!=null?mintRev:prev.mintRev,freezeRev:freezeRev!=null?freezeRev:prev.freezeRev,top:top!=null?top:prev.top};
+    latchVerified(d);}
+  renderRisk(mint);if(got)repaintScore(mint);if(typeof refreshLookup==='function')refreshLookup(mint);return got}
 function mk(v,labelOk,labelBad){if(v===null||v===undefined)return '<span class="ck unk">\u2026 '+labelOk+'</span>';return v?'<span class="ck ok">\u2713 '+labelOk+'</span>':'<span class="ck bad">\u2717 '+labelBad+'</span>'}
 function renderRisk(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;const s=d.safety||{};const rg=d.rug;
   // LOCK: prefer real LP-lock % from RugCheck; fall back to authority lockdown
