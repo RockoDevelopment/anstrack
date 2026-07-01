@@ -778,7 +778,7 @@ function devRep(w){const rugs=rugsOf(w);const wins=winsOf(w);
   if(wins>=1)return{tier:'winner',label:'MIGRATED BEFORE',boost:46,wins,rugs:0};
   if(isTracked(w))return{tier:'tracked',label:'TRACKED',boost:30,wins:0,rugs:0};
   return{tier:null,label:'',boost:0,wins:0,rugs:0}}
-function creditWin(w){if(!w)return;localWins.set(w,(localWins.get(w)||0)+1);const o={};localWins.forEach((v,k)=>o[k]=v);store.set('ans_localwins_v2',o)}
+function creditWin(w){if(!w)return;localWins.set(w,(localWins.get(w)||0)+1);const o={};localWins.forEach((v,k)=>o[k]=v);store.set('ans_localwins_v2',o);if(typeof retryGatedLaunches==='function')retryGatedLaunches()}
 function creditRug(w){if(!w)return;localRugs.set(w,(localRugs.get(w)||0)+1);const o={};localRugs.forEach((v,k)=>o[k]=v);store.set('ans_localrugs',o)}
 // remember every launch (mint -> dev/name/symbol/uri) so a later migration can be named & attributed
 const launchInfo=new Map();
@@ -803,6 +803,7 @@ async function syncReg(){let reg=null,dm=null;
       if(!devs[w])devs[w]={label:short(w),kind:'whale',wins:0,rugs:0,rugHistory:[],score:0,hit:0,launches:0};
       devs[w].wins=Math.max(devs[w].wins||0,mig);devs[w].rugs=Math.max(devs[w].rugs||0,rug);devs[w].launches=Math.max(devs[w].launches||0,lau)})}
     mergeTracked();
+    if(typeof retryGatedLaunches==='function')retryGatedLaunches();
     if($('devList'))renderDevList();if($('bestPage')&&$('bestPage').classList.contains('show')){renderBest();renderTracked()}else renderTracked()}}
 syncReg();setInterval(syncReg,15000);
 
@@ -1200,6 +1201,16 @@ setInterval(()=>{for(const it of items){const d=dataByMint.get(it.mint);if(!d||d
 
 // state
 const seen=new Set();const cardByMint=new Map();const dataByMint=new Map();let nTrk=0,nWin=0,nMig=0;
+// REPEAT-GRAD FIX: a brand-new launch from a dev who JUST won can arrive before the local registry
+// (synced every 15s) catches up, so the gate below would drop it forever and it would only ever
+// resurface already-migrated. Instead of dropping it, park it here and retry the moment fresher
+// registry data lands (syncReg) or this session witnesses a win (creditWin) — mint -> {e,addedAt}.
+const gatedPending=new Map();
+function retryGatedLaunches(){const now=Date.now();
+  for(const [mint,rec] of Array.from(gatedPending)){
+    if(seen.has(mint)){gatedPending.delete(mint);continue}
+    if(devCat(rec.e.traderPublicKey)){gatedPending.delete(mint);addLaunch(rec.e,{});continue}
+    if(now-rec.addedAt>240000)gatedPending.delete(mint)}} // 4min: genuinely not relevant, same intent as the original gate
 const items=[];let active={all:true,tracked:false,winner:false,hot:false,mig:false};
 // a migrated token stays on the migration page/ticker only while ACTIVE: under $500k MC and not rugged
 function isMigrated(d){
@@ -1330,7 +1341,7 @@ function addLaunch(e,opts){opts=opts||{};
   if(!e.mint||seen.has(e.mint))return null;
   if(dupKeyLive(e.traderPublicKey,e.symbol||''))return null; // same dev+symbol already on the grid — no duplicate card
   const cat=devCat(e.traderPublicKey);
-  if(!cat&&!opts.force&&!opts.hot)return null; // GATE: tracked devs, prior-migration devs, or confirmed hot runners
+  if(!cat&&!opts.force&&!opts.hot){if(e.traderPublicKey&&e.mint&&!seen.has(e.mint))gatedPending.set(e.mint,{e,addedAt:Date.now()});return null} // GATE: tracked devs, prior-migration devs, or confirmed hot runners (unresolved ones retry, see gatedPending)
   seen.add(e.mint);$('empty').style.display='none';
   const sc=scoreLaunch(e),rep=devRep(e.traderPublicKey),tier=opts.tier&&rep.tier!=='rugger'?opts.tier:(rep.tier==='rugger'?'rugger':sc.cat==='ansem'?'ansem':rep.tier==='elite'?'elite':tierOf(sc.cat||'tracked')),rug=rugOf(e),alpha=Math.min(sc.score,95);
   const trackedFlag=!!(isTracked(e.traderPublicKey)||opts.tracked),winnerFlag=!!(!trackedFlag&&(isWinner(e.traderPublicKey)||opts.winner));
