@@ -33,8 +33,20 @@ class WalletRegistry:
         self.path = path
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._data: Dict[str, Dict] = self._load()
+        self._known: set = set(self._data.keys())  # for detecting removals to sync to Postgres
 
     def _load(self) -> Dict[str, Dict]:
+        # Postgres is the durable source of truth in production (survives Render redeploys).
+        # If it's configured and reachable, load from it; the JSON file stays as a local mirror.
+        try:
+            import db
+            if db.enabled():
+                reg = db.load_registry()
+                if reg is not None:
+                    return reg
+        except Exception:
+            pass
+        # No Postgres (local dev) or it's unreachable -> read the file vault.
         if self.path.exists():
             try:
                 return json.loads(self.path.read_text())
@@ -43,7 +55,27 @@ class WalletRegistry:
         return {}
 
     def _save(self) -> None:
-        self.path.write_text(json.dumps(self._data, indent=2))
+        # Always mirror to the disk file (safety net + local dev). When Postgres is available,
+        # also upsert there so the registry persists across redeploys. Postgres failure never
+        # loses a write because the file mirror above already succeeded.
+        try:
+            self.path.write_text(json.dumps(self._data, indent=2))
+        except Exception:
+            pass
+        try:
+            import db
+            if db.enabled():
+                db.save_registry(self._data)
+                # sync deletions: any wallet we knew about but that's now gone must be removed
+                # from Postgres too, otherwise it would resurrect on the next _load().
+                for gone in (self._known - set(self._data.keys())):
+                    try:
+                        db.delete_wallet(gone)
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+        self._known = set(self._data.keys())
 
     def add(self, wallet: str, kind: str = "whale",
             label: str = "", notes: str = "", wins: int = 0) -> None:

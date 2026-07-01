@@ -20,4 +20,4 @@ services:
 
 databases:
   - name: anstrack-db
-    plan: free
+    plan: basic-256mb   # was 'free' — free Postgres is DELETED 30 days after creation. Paid tier persists.

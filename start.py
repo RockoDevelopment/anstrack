@@ -96,6 +96,17 @@ def main():
     except Exception:
         pass
 
+    # One-time seed: if Postgres is configured (Render) and still empty, import the existing
+    # file-vault registry.json into it so accumulated dev history isn't lost on the switch to
+    # Postgres persistence. No-op locally (no DATABASE_URL) and after the first successful import.
+    try:
+        import db, config, os as _os
+        if db.enabled():
+            _reg = _os.path.join(config.VAULT_PATH, "wallets", "registry.json")
+            db.migrate_from_file_if_needed(_reg)
+    except Exception as _e:
+        print(f"[start] registry migration skipped: {_e}", flush=True)
+
     restart = {}
     for label, cmd, _r in PROCS:
         _spawn(label, cmd)
@@ -114,7 +125,19 @@ def main():
                 print(f"[start] {label} exited (code {code}) — restarting ({cfg['count']}/20)", flush=True)
                 time.sleep(3)
                 _spawn(label, cfg["cmd"])
+            elif cfg["auto"]:
+                # An auto-restart process (the brain) exhausted its retries. Do NOT take the whole
+                # service down with it — the web server must keep serving the terminal + APIs (which
+                # read the durable event log / Postgres) even if ingestion is temporarily wedged.
+                # Cool off and resume trying so a transient outage self-heals instead of going dark.
+                print(f"[start] {label} exited (code {code}) — retries exhausted; cooling off 60s, web stays up", flush=True)
+                cfg["count"] = 0
+                time.sleep(60)
+                if not _stop.is_set():
+                    _spawn(label, cfg["cmd"])
             else:
+                # A non-auto process (the web server) died — that's fatal; bring everything down so
+                # Render restarts the whole service cleanly.
                 print(f"[start] {label} exited (code {code}) — stopping everything", flush=True)
                 _shutdown()
 
