@@ -1798,7 +1798,9 @@ async function ansRenderCard(cv,o){
 function ansDownload(cv,name){cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);},'image/png');}
 let _cardName='anstrack.png';
 async function openKolCard(mint){const d=dataByMint.get(mint);if(!d)return;const e=d.ev||{};const dev=e.traderPublicKey||'';
-  const sym=(''+(d.sym||e.symbol||short(mint)||'token')).toUpperCase();const mc=mcOf(d);const score=Math.round(d.baseScore||devScore(dev)||0);
+  const sym=(''+(d.sym||e.symbol||short(mint)||'token')).toUpperCase();const mc=mcOf(d);
+  const cardEl=cardByMint.get(mint);const scEl=cardEl&&cardEl.querySelector('[data-sc]');
+  const score=scEl?(parseInt(scEl.textContent,10)||0):Math.round(liveScore(d)); // always the exact number shown on the token card, not a recomputed one
   const rep=devRep(dev);const tag=rep&&rep.tier==='ansem'?'ANSEM PICK':rep&&(rep.tier==='winner'||rep.tier==='proven'||rep.tier==='elite')?'REPEAT GRAD DEV':'CAUGHT LIVE';
   $('cardTitle').innerHTML='\ud83d\udce2 KOL OUT';$('cardNote').textContent='Your ANSTRACK call card \u2014 save it or post to X with the call prefilled.';
   await ansRenderCard($('ansCard'),{sym,eyebrow:'called at '+(mc?fmtK(mc):'?'),hero:String(score||0),heroSize:196,heroY:506,heroFill:'#00e5ff',heroGlow:'rgba(0,180,255,.7)',sub:'/100  ALPHA SCORE',line2:tag+'  \u00b7  @anstrack',line2Y:628});
