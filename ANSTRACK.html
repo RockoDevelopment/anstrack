@@ -254,14 +254,15 @@
   .tokdrop .tnone{padding:12px;font-family:var(--mono);font-size:11px;color:var(--mut)}
   /* big lookup card modal */
   #lookScrim .modal{max-width:560px}
-  /* instant-link icons on token cards (X / web / telegram) */
-  .headr .socs{display:flex;gap:5px}
-  .headr .socs a{font-family:var(--mono);font-size:12px;line-height:1;color:var(--cyan);text-decoration:none;border:1px solid var(--edge2);padding:2.5px 5px;background:rgba(0,229,255,.05);clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px))}
-  .headr .socs a:hover{border-color:var(--cyan);background:rgba(0,229,255,.14)}
+  /* instant-link icons (X / web / telegram): right-aligned into the risk row's empty space */
+  .socs{display:flex;gap:5px}
+  .risk .socs{margin-left:auto}
+  .socs a{display:flex;align-items:center;font-family:var(--mono);font-size:11px;line-height:1;color:var(--cyan);text-decoration:none;border:1px solid var(--edge2);padding:2.5px 5px;background:rgba(0,229,255,.05);clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px))}
+  .socs a:hover{border-color:var(--cyan);background:rgba(0,229,255,.14)}
   /* token detail modal: 80% screen, tile-styled — info left / chart center / swap right */
   #tdScrim .modal{width:min(80vw,1560px);max-width:80vw}
   #tdScrim .mi{padding:0;position:relative;max-height:82vh}
-  .td-grid{display:grid;grid-template-columns:320px minmax(0,1fr) 300px;height:min(78vh,900px)}
+  .td-grid{display:grid;grid-template-columns:330px minmax(0,1fr) 330px;height:min(78vh,900px)}
   .td-left{padding:18px;border-right:1px solid var(--edge2);overflow-y:auto;min-width:0}
   .td-chart{position:relative;background:#02040a;min-width:0}
   .td-chart iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -274,6 +275,15 @@
   .td-devrow .dwl{font-family:var(--mono);font-size:10px;color:var(--mut);cursor:pointer}
   .td-devrow .dwl:hover{color:var(--ink)}
   .td-right .sectit{margin-top:0}
+  /* left panel: big clear market cap + stat grid, mirrors the tile readouts */
+  .td-mc{border:1px solid var(--edge2);background:rgba(0,0,0,.3);padding:12px 14px;margin:4px 0 10px}
+  .td-mc .lbl{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut)}
+  .td-mc .num{font-family:var(--hud);font-weight:800;font-size:30px;color:var(--ink);display:flex;align-items:baseline;gap:10px}
+  .td-mc .num .delta{font-size:13px}
+  .td-stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+  .td-stats .tds{border:1px solid var(--edge2);background:rgba(0,0,0,.25);padding:8px 10px}
+  .td-stats .tds .lbl{font-family:var(--mono);font-size:8.5px;letter-spacing:1.2px;color:var(--mut)}
+  .td-stats .tds .v{font-family:var(--hud);font-weight:800;font-size:15px;color:var(--ink);margin-top:2px}
   #setScrim .modal{width:min(900px,96vw);max-height:94vh}
   .feedacc{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow:auto;margin:6px 0}
   .feedacc .fa{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid var(--edge2);padding:7px 10px;font-family:var(--mono);font-size:11px}
@@ -679,11 +689,17 @@
     <div class="td-left bigcard">
       <div class="bchead">
         <div class="bav" id="tdAv"></div>
-        <div><div class="btk" id="tdTk">$\u2014<span class="star" id="tdStar" style="margin-left:6px">\u2605</span></div><div class="bnm" id="tdNm"></div></div>
-        <div class="bnum"><div class="lbl">ALPHA</div><div class="sc" id="tdSc">\u2014</div></div>
+        <div><div class="btk" id="tdTk"></div><div class="bnm" id="tdNm"></div></div>
+        <div class="bnum"><div class="lbl">ALPHA</div><div class="sc" id="tdSc"></div></div>
       </div>
       <div class="td-devrow" id="tdDev"></div>
-      <div class="brow"><span>MC <b id="tdMc">$\u2014</b></span><span>5M <b id="tdCh">\u2014</b></span><span>VOL 5M <b id="tdVol">$\u2014</b></span><span>LIQ <b id="tdLiq">$\u2014</b></span></div>
+      <div class="td-mc"><div class="lbl">MARKET CAP</div><div class="num"><span id="tdMc">$&hellip;</span><span class="delta" id="tdCh"></span></div></div>
+      <div class="td-stats">
+        <div class="tds"><div class="lbl">VOL 5M</div><div class="v" id="tdVol">&mdash;</div></div>
+        <div class="tds"><div class="lbl">LIQUIDITY</div><div class="v" id="tdLiq">&mdash;</div></div>
+        <div class="tds"><div class="lbl">DEV BUY</div><div class="v" id="tdDevBuy">&mdash;</div></div>
+        <div class="tds"><div class="lbl">LP LOCK</div><div class="v" id="tdLock">&mdash;</div></div>
+      </div>
       <div class="badges" id="tdBadges"></div>
       <div class="sectit">VERIFY BEFORE YOU SIGN &mdash; on-chain</div>
       <div class="bchecks" id="tdChecks"></div>
@@ -692,11 +708,25 @@
     <div class="td-chart"><iframe id="tdChart" title="chart" allow="clipboard-write"></iframe></div>
     <div class="td-right">
       <div class="sectit">SWAP</div>
-      <div class="quick" id="tdQuick"></div>
-      <div class="field" style="flex-direction:column;align-items:stretch;gap:8px;margin-top:12px">size (SOL) <input id="tdSize" type="number" value="0.1" step="0.05" min="0"/> slippage % <input id="tdSlip" type="number" value="10" step="1" min="0"/></div>
-      <div class="mrow" style="flex-direction:column;align-items:stretch"><button class="btn ape" id="tdBuy">CONNECT WALLET TO BUY</button><a class="btn ghost" id="tdPump" target="_blank" rel="noopener">pump.fun &#8599;</a></div>
-      <div class="bstat" id="tdStat"></div>
-      <div class="socs" id="tdSocs" style="display:flex;gap:6px;margin-top:14px"></div>
+      <div class="swapcard">
+        <div class="swleg">
+          <div class="swleg-h"><span>You pay</span></div>
+          <div class="swleg-b"><input id="tdAmt" type="number" min="0" step="0.01" placeholder="0.0"/><button type="button" class="swchip"><span class="swchip-ic sol">&#9678;</span><span>SOL</span></button></div>
+        </div>
+        <div class="swleg to">
+          <div class="swleg-h"><span>You receive (est.)</span></div>
+          <div class="swleg-b"><div class="swout" id="tdOut">0.0</div><button type="button" class="swchip" id="tdChipTo"><span class="swchip-ic q" id="tdChipIc">?</span><span id="tdChipSym">TOKEN</span></button></div>
+        </div>
+        <div class="swmeta" id="tdMeta"></div>
+        <div class="quick" id="tdQuick" style="margin-top:10px"></div>
+        <div class="swset">
+          <div class="swsetf"><span>Slippage</span><input id="tdSlip" type="number" min="0" step="1" value="10"/><span>%</span></div>
+        </div>
+        <button class="swexec" id="tdBuy">Connect wallet to buy</button>
+        <div class="swstat bstat" id="tdStat"></div>
+      </div>
+      <div class="mrow"><a class="btn ghost" id="tdPump" target="_blank" rel="noopener" style="flex:1;text-align:center">pump.fun &#8599;</a></div>
+      <div id="tdSocs" style="margin-top:12px"></div>
     </div>
   </div>
 </div></div></div>
@@ -1401,7 +1431,7 @@ function addLaunch(e,opts){opts=opts||{};
     '<div class="chead"><div class="av" data-av></div>'+
       '<div class="cid"><div class="tk">'+(sym?'<span class="tkr sc-'+tier+'">$'+esc(sym)+'</span>':'')+'<span class="nm">'+esc(name)+'</span></div>'+
         '<div class="dv" title="copy dev wallet">'+(d?'<span class="label">'+esc(d.label)+'</span>':'')+'<span>'+(dev?short(dev):'?')+'</span>'+(d&&d.wins?'<span class="stars">\u2605'+d.wins+'</span>':'')+'<span>\u00b7 <span class="age" data-born="'+Date.now()+'">now</span></span></div></div>'+
-      '<div class="headr"><span class="heat '+tier+'">'+(opts.mig&&tier==='grad'&&rep.wins<=1?'NEW GRAD':heatLabel(tier))+'</span><span class="socs" data-socs></span><span class="promise" data-star title="ANSOM PROMISE \u2605 \u2014 creator fees routed to auto-liquidity via pump.fun fee-sharing"><span class="pstar">\u2605</span> ANSOM PROMISE</span></div></div>'+
+      '<div class="headr"><span class="heat '+tier+'">'+(opts.mig&&tier==='grad'&&rep.wins<=1?'NEW GRAD':heatLabel(tier))+'</span><span class="promise" data-star title="ANSOM PROMISE \u2605 \u2014 creator fees routed to auto-liquidity via pump.fun fee-sharing"><span class="pstar">\u2605</span> ANSOM PROMISE</span></div></div>'+
     '<div class="readouts"><div class="ro mc"><div class="lbl">MARKET CAP</div><div class="num"><span data-mc>'+(mcUsd?fmtUsd(mcUsd):'$\u2026')+'</span><span class="delta flat" data-delta>\u2014</span></div></div>'+
       '<div class="ro sc"><div class="lbl">ALPHA</div><div class="num sc-'+tier+'" data-sc>'+alpha+'</div></div></div>'+
     segs(alpha,tier)+
@@ -1544,13 +1574,6 @@ function mcOf(d){return d?(d.mcUsd||(d.market&&d.market.mc)||0):0}
 // HOT = a genuine runner: real volume + momentum right now (independent of dev reputation)
 function isHotRunner(d){if(!d)return false;if(mcOf(d)>=500000||isRuggedTok(d))return false;return marketBonusOf(d.market||{})>=24}
 function refreshHot(){refreshStats()}
-// paint instant-link icons (X / website / telegram) on a token card once those URLs are known.
-// Idempotent — called from every data path that can learn a URL (DexScreener poll, lookup, pump.fun metadata).
-function renderSocs(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;const el=c.querySelector('[data-socs]');if(!el)return;
-  const norm=u=>{u=''+u;return /^https?:\/\//i.test(u)?u:'https://'+u.replace(/^\/+/,'')};
-  const items=[];if(d.xUrl)items.push(['\ud835\udd4f',norm(d.xUrl),'token X / Twitter']);if(d.webUrl)items.push(['\ud83c\udf10',norm(d.webUrl),'token website']);if(d.tgUrl)items.push(['\u2708',norm(d.tgUrl),'token Telegram']);
-  const html=items.map(([g,u,t])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener" title="'+t+'" onclick="event.stopPropagation()">'+g+'</a>').join('');
-  if(el.innerHTML!==html)el.innerHTML=html}
 function repaintScore(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;const ls=liveScore(d);
   const scEl=c.querySelector('[data-sc]');if(scEl)scEl.textContent=ls;
   const seg=c.querySelector('.seg');if(seg){const lit=Math.round(ls/10);[...seg.children].forEach((el,i)=>el.classList.toggle('on',i<lit))}
@@ -1607,6 +1630,13 @@ async function checkSafety(mint){let mintRev=null,freezeRev=null,top=null,got=fa
     latchVerified(d);}
   renderRisk(mint);if(got)repaintScore(mint);if(typeof refreshLookup==='function')refreshLookup(mint);return got}
 function mk(v,labelOk,labelBad){if(v===null||v===undefined)return '<span class="ck unk">\u2026 '+labelOk+'</span>';return v?'<span class="ck ok">\u2713 '+labelOk+'</span>':'<span class="ck bad">\u2717 '+labelBad+'</span>'}
+// instant-link icon set (X / website / Telegram) for a token — real Telegram logo, not a plane glyph
+const TG_SVG='<svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" style="display:block"><path d="M9.04 15.9l-.38 5.37c.55 0 .79-.24 1.08-.52l2.59-2.48 5.37 3.93c.99.55 1.69.26 1.96-.91l3.55-16.63c.31-1.45-.52-2.02-1.48-1.66L1.4 10.98c-1.42.55-1.4 1.34-.24 1.7l5.32 1.66L18.85 6.6c.58-.38 1.11-.17.67.21L9.04 15.9z"/></svg>';
+function socsHtml(d){if(!d)return '';const norm=u=>{u=''+u;return /^https?:\/\//i.test(u)?u:'https://'+u.replace(/^\/+/,'')};
+  const it=[];if(d.xUrl)it.push(['\ud835\udd4f',norm(d.xUrl),'token X / Twitter']);if(d.webUrl)it.push(['\ud83c\udf10',norm(d.webUrl),'token website']);if(d.tgUrl)it.push([TG_SVG,norm(d.tgUrl),'token Telegram']);
+  if(!it.length)return '';
+  return '<span class="socs">'+it.map(([g,u,t])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener" title="'+t+'" onclick="event.stopPropagation()">'+g+'</a>').join('')+'</span>'}
+function renderSocs(mint){renderRisk(mint)} // socials live inside the risk row now; re-rendering it repaints them
 function renderRisk(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;const s=d.safety||{};const rg=d.rug;
   // LOCK: prefer real LP-lock % from RugCheck; fall back to authority lockdown
   let locked,lockTxt='\u2026';
@@ -1615,7 +1645,7 @@ function renderRisk(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if
   const lk=c.querySelector('[data-lock]');if(lk){lk.textContent=lockTxt;lk.className=locked==null?'lkun':(locked?'lkok':'lkbad')}
   const el=c.querySelector('[data-risk]');if(!el)return;
   el.innerHTML=mk(s.mintRev,'MINT revoked','MINT live')+mk(s.freezeRev,'FREEZE revoked','FREEZE live')+
-    '<span class="ck '+(d.dexLinks?'ok':'unk')+'">'+(d.dexLinks?'\u2713':'\u2026')+' DEX update</span>'}
+    '<span class="ck '+(d.dexLinks?'ok':'unk')+'">'+(d.dexLinks?'\u2713':'\u2026')+' DEX update</span>'+socsHtml(d)}
 
 // RugCheck lookup (server-side proxy avoids CORS) -> real LP-lock + holder/risk enrichment
 const rugQ=[];let rugBusy=false;
@@ -1806,7 +1836,7 @@ function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=
   // alpha: the exact number on the tile (same rule as KOL OUT), fallback to liveScore
   const scEl=c&&c.querySelector('[data-sc]');const ls=scEl?(parseInt(scEl.textContent,10)||0):Math.round(liveScore(d));
   hydrateImg($('tdAv'),e.uri,mint,d.sym||'',d);
-  $('tdTk').innerHTML='$'+esc(d.sym||short(mint))+'<span class="star'+(hasStar(d)?' on':'')+'" id="tdStar" title="ANSOM PROMISE \u2014 creator fees routed to auto-liquidity" style="margin-left:6px">\u2605</span>';
+  $('tdTk').innerHTML='$'+esc(d.sym||short(mint))+'<span class="star'+(hasStar(d)?' on':'')+'" title="ANSOM PROMISE \u2014 creator fees routed to auto-liquidity" style="margin-left:6px">\u2605</span>';
   $('tdNm').textContent=d.name||short(mint);
   const sc=$('tdSc');sc.textContent=ls;sc.className='sc sc-'+tier;
   // dev name + image (pump.fun profile pulled async; avatar patches itself via repaintAvatars)
@@ -1814,11 +1844,18 @@ function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=
   const pd=pumpDevCache.get(dev);const dnm=(pd&&pd.ok&&pd.username)||(devs[dev]&&devs[dev].label)||(dev?short(dev):'unknown dev');
   $('tdDev').innerHTML=(dev?devAvatar(dev):'<div class="bav ph">?</div>')+'<div><div class="dnm">'+esc(dnm)+'</div><div class="dwl" title="copy dev wallet">'+(dev?short(dev)+' \u29c9':'\u2014')+'</div></div>';
   const dw=$('tdDev').querySelector('.dwl');if(dw&&dev)dw.onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(dev)}catch{}};
-  const m=d.market||{};$('tdMc').textContent=mcOf(d)?fmtUsd(mcOf(d)):'$\u2014';
-  const ch=m.ch||0;$('tdCh').textContent=(ch>0?'\u25b2':ch<0?'\u25bc':'')+Math.abs(ch).toFixed(1)+'%';$('tdCh').style.color=ch>0?'var(--up)':ch<0?'var(--down)':'var(--mut)';
-  $('tdVol').textContent=m.vol?fmtK(m.vol):'$\u2014';$('tdLiq').textContent=m.liq?fmtK(m.liq):'$\u2014';
+  // clear market readout: big MC + colored 5m delta + stat grid
+  const m=d.market||{};const mc=mcOf(d);
+  $('tdMc').textContent=mc?fmtUsd(mc):'$\u2026';
+  const ch=m.ch||0;const chEl=$('tdCh');chEl.textContent=(ch>0?'\u25b2 ':ch<0?'\u25bc ':'')+Math.abs(ch).toFixed(1)+'% 5M';chEl.style.color=ch>0?'var(--up)':ch<0?'var(--down)':'var(--mut)';
+  $('tdVol').textContent=m.vol?fmtK(m.vol):'\u2014';$('tdLiq').textContent=m.liq?fmtK(m.liq):'\u2014';
+  $('tdDevBuy').textContent=fmtK((d.devSol||0)*(solUsd||0));
+  const rg=d.rug;const s=d.safety||{};let lockTxt='\u2026';
+  if(rg&&rg.ok&&typeof rg.lpLockedPct==='number')lockTxt=rg.lpLockedPct>=90?'\u2713 LOCKED':Math.round(rg.lpLockedPct)+'%';
+  else if(s.mintRev!=null&&s.freezeRev!=null)lockTxt=(s.mintRev&&s.freezeRev)?'\u2713':'\u2717';
+  $('tdLock').textContent=lockTxt;
   $('tdBadges').innerHTML=c?[...c.querySelectorAll('.bdg')].map(b=>b.outerHTML).join(''):'';
-  const s=d.safety||{};const devBuyUsd=(d.devSol||0)*(solUsd||0);const realVol=(m.vol>0)&&(devBuyUsd<=0?m.vol>=2000:m.vol>devBuyUsd*1.5);
+  const devBuyUsd=(d.devSol||0)*(solUsd||0);const realVol=(m.vol>0)&&(devBuyUsd<=0?m.vol>=2000:m.vol>devBuyUsd*1.5);
   const rows=[['\u2605 ANSOM PROMISE \u2014 creator fees \u2192 auto-liquidity?',d.feeShare==null?null:!!d.feeShare],
     ['mint authority revoked?',s.mintRev==null?null:s.mintRev],['freeze authority revoked?',s.freezeRev==null?null:s.freezeRev],
     ['top holder under 25%?',s.top==null?null:(s.top<=25)],['DexScreener website / community / X link?',d.dexLinks?true:null],
@@ -1827,19 +1864,27 @@ function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=
   const mintEl=$('tdMint');mintEl.textContent=mint;mintEl.onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(mint)}catch{}mintEl.style.color='var(--up)';setTimeout(()=>mintEl.style.color='',900)};
   // TV chart: DexScreener embed resolves the mint to its live pair (bonding curve or AMM)
   $('tdChart').src='https://dexscreener.com/solana/'+mint+'?embed=1&theme=dark&trades=0&info=0';
-  // swap panel: same executeBuy flow as everywhere else, pool re-checked live
-  $('tdSize').value=settings.amounts&&settings.amounts[0]||0.1;$('tdSlip').value=settings.slippage||10;
+  // ---- swap panel (advanced, mirrors the SWAP section) ----
+  $('tdChipSym').textContent='$'+esc((d.sym||short(mint)).toUpperCase());
+  const ic=$('tdChipIc');const img=(d.market&&d.market.img)||('https://dd.dexscreener.com/ds-data/tokens/solana/'+mint+'.png');
+  ic.innerHTML='<img src="'+esc(img)+'" onerror="this.remove()"/>';
+  const est=()=>{const sol=+$('tdAmt').value||0;const out=$('tdOut');const price=mc>0?mc/1e9:0; // pump.fun standard 1B supply
+    if(!sol||!price){out.textContent='0.0';$('tdMeta').textContent='';return}
+    const usd=sol*(solUsd||0);const toks=usd/price;
+    out.textContent=toks>=1e6?(toks/1e6).toFixed(2)+'M':toks>=1e3?(toks/1e3).toFixed(1)+'K':toks.toFixed(0);
+    $('tdMeta').textContent='\u2248 '+fmtUsd(usd)+' \u00b7 est. from MC, before slippage/fees'};
+  $('tdAmt').value=settings.amounts&&settings.amounts[0]||0.1;$('tdAmt').oninput=est;
+  $('tdSlip').value=settings.slippage||10;
   $('tdQuick').innerHTML=(settings.amounts||[]).map(a=>'<button class="qbtn" data-a="'+a+'">'+a+' SOL</button>').join('');
-  $('tdQuick').querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{$('tdSize').value=b.dataset.a});
+  $('tdQuick').querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{$('tdAmt').value=b.dataset.a;est()});
+  est();
   $('tdPump').href='https://pump.fun/'+mint;$('tdStat').textContent='';
-  $('tdBuy').textContent=wallet?'BUY NOW (approve in wallet)':'CONNECT WALLET TO BUY';
-  $('tdBuy').onclick=async()=>{if(!wallet){await connectWallet();paintWallet();if(!wallet)return;$('tdBuy').textContent='BUY NOW (approve in wallet)'}
+  $('tdBuy').textContent=wallet?'BUY NOW \u2014 approve in wallet':'Connect wallet to buy';
+  $('tdBuy').onclick=async()=>{if(!wallet){await connectWallet();paintWallet();if(!wallet)return;$('tdBuy').textContent='BUY NOW \u2014 approve in wallet'}
     const migratedNow=!!(d.live||(d.pairUrl&&d.dexId&&!/pumpfun/.test(d.dexId||''))||d.migrated);buyPool=migratedNow?'auto':null;
-    executeBuy(mint,+$('tdSize').value,+$('tdSlip').value,$('tdStat'))};
+    executeBuy(mint,+$('tdAmt').value,+$('tdSlip').value,$('tdStat'))};
   // socials: same instant links as the tile
-  const norm=u=>{u=''+u;return /^https?:\/\//i.test(u)?u:'https://'+u.replace(/^\/+/,'')};
-  const socs=[];if(d.xUrl)socs.push(['\ud835\udd4f',norm(d.xUrl),'token X / Twitter']);if(d.webUrl)socs.push(['\ud83c\udf10',norm(d.webUrl),'token website']);if(d.tgUrl)socs.push(['\u2708',norm(d.tgUrl),'token Telegram']);
-  $('tdSocs').innerHTML=socs.map(([g,u,t])=>'<a class="btn ghost sm" href="'+esc(u)+'" target="_blank" rel="noopener" title="'+t+'">'+g+'</a>').join('');
+  $('tdSocs').innerHTML=socsHtml(d);
   tdScrim.classList.add('show')}
 function closeTokenDetail(){tdScrim.classList.remove('show');$('tdChart').src='about:blank';tdMint=null}
 $('tdClose').onclick=closeTokenDetail;
@@ -1950,7 +1995,15 @@ async function executeSell(mint){const p=getPositions();const pos=p[mint];if(!po
   }catch(e){}
   if(sold){delete p[mint];store.set('ans_positions',p);renderHeld();$('heldScrim')&&$('heldScrim').classList.remove('show');openPnlCard(pos,cur);}
   else{toast('dead','SELL NOT SENT','approve in wallet, or set a custom RPC in \u2699 settings');}}
-if($('heldBtn'))$('heldBtn').onclick=()=>{renderHeld();$('heldScrim').classList.add('show');};
+if($('heldBtn'))$('heldBtn').onclick=()=>{renderHeld();$('heldScrim').classList.add('show');reconcileHeld();};
+// positions are recorded when the tx is SENT — but a sent tx can still FAIL on-chain (e.g. forced through
+// a red Phantom warning), leaving a phantom "held" token. Verify each position against the wallet's real
+// token balance and silently drop the ones that never actually landed.
+async function reconcileHeld(){if(!wallet)return;const p=getPositions();const ks=Object.keys(p);if(!ks.length)return;let changed=false;
+  for(const m of ks){try{const r=await rpc('getTokenAccountsByOwner',[wallet,{mint:m},{encoding:'jsonParsed'}]);
+    let bal=0;((r&&r.value)||[]).forEach(a=>{bal+=(+a.account.data.parsed.info.tokenAmount.uiAmount)||0});
+    if(bal<=0){delete p[m];changed=true}}catch{}} // RPC failure = leave the position alone, never delete on doubt
+  if(changed){store.set('ans_positions',p);if($('heldScrim')&&$('heldScrim').classList.contains('show'))renderHeld()}}
 if($('heldCloseB'))$('heldCloseB').onclick=()=>$('heldScrim').classList.remove('show');
 if($('heldScrim'))$('heldScrim').onclick=e=>{if(e.target===$('heldScrim'))$('heldScrim').classList.remove('show');};
 ansBull();
