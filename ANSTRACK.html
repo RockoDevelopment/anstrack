@@ -254,9 +254,9 @@
   .tokdrop .tnone{padding:12px;font-family:var(--mono);font-size:11px;color:var(--mut)}
   /* big lookup card modal */
   #lookScrim .modal{max-width:560px}
-  /* instant-link icons (X / web / telegram): right-aligned into the risk row's empty space */
+  /* instant-link icons (X / web / telegram): right-aligned into the mx row's empty space, same line as CURVE */
   .socs{display:flex;gap:5px}
-  .risk .socs{margin-left:auto}
+  .mx .socs{margin-left:auto}
   .socs a{display:flex;align-items:center;font-family:var(--mono);font-size:11px;line-height:1;color:var(--cyan);text-decoration:none;border:1px solid var(--edge2);padding:2.5px 5px;background:rgba(0,229,255,.05);clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px))}
   .socs a:hover{border-color:var(--cyan);background:rgba(0,229,255,.14)}
   /* token detail modal: 80% screen, tile-styled — info left / chart center / swap right */
@@ -1313,9 +1313,12 @@ function applyFilters(){
     // actually qualifies right now, so ALL never shows a HOT-badged card that the HOT tab leaves out
     if(!it.tracked&&!it.winner&&!it.mig){const hot=isHotRunner(dd);const hb=it.el.querySelector('.heat');if(hb)hb.style.display=hot?'':'none';const hp=it.el.querySelector('.bdg.hot');if(hp)hp.style.display=hot?'':'none'}
     let show;
+    // one-way advancement latch: a repeat-grad that genuinely goes hot ADVANCES (REPEAT GRAD -> HOT) and never
+    // bounces back on a cold 5m window; before that, momentary volume blips can't yank it out of REPEAT GRAD
+    if(it.winner&&!it.tracked&&!it.mig&&!it.hotAdv&&isHotRunner(dd))it.hotAdv=true;
     if(active.tracked)show=it.tracked;                          // TRACKED owns tracked-dev launches until rugged or 500k+, even if hot/migrated
-    else if(active.winner)show=it.winner&&!it.tracked&&!it.mig&&!isHotRunner(dd); // REPEAT GRAD: repeat-grad launch BEFORE it goes hot or migrates
-    else if(active.hot)show=!it.tracked&&!it.mig&&isHotRunner(dd);                 // HOT: any non-tracked runner — a repeat-grad that goes hot MOVES here
+    else if(active.winner)show=it.winner&&!it.tracked&&!it.mig&&!it.hotAdv; // REPEAT GRAD: stays here until rug/dead/500k or advancement (hot latch / migration)
+    else if(active.hot)show=!it.tracked&&!it.mig&&(it.hotAdv?it.winner:isHotRunner(dd)); // HOT: live runners + advanced repeat-grads (one-way)
     else if(active.mig)show=it.mig&&isActiveMig(it);             // MIGRATED means actual migration only
     else show=true;
     it.el.hidden=!show})}
@@ -1346,8 +1349,8 @@ function sweepStale(){const now=Date.now();for(let i=items.length-1;i>=0;i--){co
 function refreshStats(){let t=0,w=0,h=0,m=0;items.forEach(it=>{const d=dataByMint.get(it.mint);if(!d)return;
   if(mcOf(d)>=500000||isRuggedTok(d))return;
   if(it.tracked)t++;
-  if(it.winner&&!it.tracked&&!it.mig&&!isHotRunner(d))w++;
-  if(!it.tracked&&!it.mig&&isHotRunner(d))h++;
+  if(it.winner&&!it.tracked&&!it.mig&&!it.hotAdv)w++;
+  if(!it.tracked&&!it.mig&&(it.hotAdv?it.winner:isHotRunner(d)))h++;
   if(it.mig&&isActiveMig(it))m++});
   $('sTrk').textContent=t;$('sWin').textContent=w;$('sHot').textContent=h;$('sMig').textContent=m}
 function drop(it,i,permanent){it.el.remove();cardByMint.delete(it.mint);items.splice(i,1);if(permanent)dataByMint.delete(it.mint);else seen.delete(it.mint);saveGrid()}
@@ -1437,7 +1440,7 @@ function addLaunch(e,opts){opts=opts||{};
     segs(alpha,tier)+
     '<div class="sub"><span>DEV TODAY <b data-today>'+devLaunchesToday(dev)+'</b></span><span>LIQ <b data-liq>'+fmtK(vsol*(solUsd||0))+'</b></span><span>LOCK <b data-lock class="lkun">\u2026</b></span></div>'+
     '<div class="risk" data-risk><span class="ck unk">\u2026 verifying on-chain</span></div>'+
-    '<div class="mx"><span>VOL 5M <b data-vol>$\u2026</b></span><span>DEV BUY <b>'+fmtK(sc.devSol*(solUsd||0))+'</b></span><span>CURVE <b>'+fmtK(vsol*(solUsd||0))+'</b></span></div>'+
+    '<div class="mx"><span>VOL 5M <b data-vol>$\u2026</b></span><span>DEV BUY <b>'+fmtK(sc.devSol*(solUsd||0))+'</b></span><span>CURVE <b>'+fmtK(vsol*(solUsd||0))+'</b></span><span class="socs" data-socs></span></div>'+
     '<div class="badges">'+(opts.hot&&!cat?'<span class="bdg hot">\ud83d\udd25 HOT RUNNER</span>':'')+(rep.tier?'<span class="bdg '+(rep.tier==='rugger'?'rugger':rep.tier==='elite'?'elite':rep.tier==='tracked'?'trk':'grad')+'">'+(rep.tier==='rugger'?'\u26a0 ':rep.tier==='elite'?'\ud83d\udc51 ':rep.tier==='winner'||rep.tier==='proven'?'\u2726 ':'')+(opts.mig&&rep.tier==='winner'&&rep.wins<=1?'1ST MIGRATION':rep.label)+'</span>':'')+(trackedFlag&&(rep.tier==='tracked'||rep.tier==='rugger')?'':trackedFlag?'<span class="bdg trk">TRACKED</span>':'')+'</div>'+
     '<div class="acts"><button class="btn ape act-buy">APE \u2192</button><button class="btn sm act-why">WHY</button>'+(rep.tier==='rugger'?'<button class="btn report sm act-report">\u26a0 REPORT</button>':'')+'<a class="btn ghost sm" href="https://pump.fun/'+e.mint+'" target="_blank" rel="noopener">CHART \u2197</a><button class="btn sm act-kol">\ud83d\udce2 KOL OUT</button></div>'+
     '</div>';
@@ -1568,7 +1571,12 @@ function liveScore(d){if(!d)return 0;const dev=d.ev&&d.ev.traderPublicKey;
   if(hasStar(d)&&pass===6)sc=100;          // the final 5 points come SOLELY from a secured-LP star
   // a fresh token from a dev who has MIGRATED BEFORE is still unproven on its own — the dev's track record lifts their DEV score, not this token's alpha. Hard-cap at 46 until the token graduates itself.
   if(dev&&isWinner(dev)&&!d.migrated)sc=Math.min(sc,46);
-  return sc}
+  // RATCHET: alpha never sags. Market bonuses (5m volume/momentum) naturally decay as trading cools, which
+  // read as the score "fluctuating downward" — so the displayed alpha latches at its high-water mark and only
+  // rises. Rugged tokens skip the ratchet entirely: a rug must read low, and the grid drops it anyway.
+  if(isRuggedTok(d))return sc;
+  d.peakScore=Math.max(d.peakScore||0,sc);
+  return d.peakScore}
 // HOT = a genuine runner: real volume + momentum right now (independent of dev reputation)
 function mcOf(d){return d?(d.mcUsd||(d.market&&d.market.mc)||0):0}
 // HOT = a genuine runner: real volume + momentum right now (independent of dev reputation)
@@ -1636,7 +1644,8 @@ function socsHtml(d){if(!d)return '';const norm=u=>{u=''+u;return /^https?:\/\//
   const it=[];if(d.xUrl)it.push(['\ud835\udd4f',norm(d.xUrl),'token X / Twitter']);if(d.webUrl)it.push(['\ud83c\udf10',norm(d.webUrl),'token website']);if(d.tgUrl)it.push([TG_SVG,norm(d.tgUrl),'token Telegram']);
   if(!it.length)return '';
   return '<span class="socs">'+it.map(([g,u,t])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener" title="'+t+'" onclick="event.stopPropagation()">'+g+'</a>').join('')+'</span>'}
-function renderSocs(mint){renderRisk(mint)} // socials live inside the risk row now; re-rendering it repaints them
+function renderSocs(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;const el=c.querySelector('[data-socs]');if(!el)return;
+  const html=socsHtml(d).replace(/^<span class="socs">|<\/span>$/g,'');if(el.innerHTML!==html)el.innerHTML=html}
 function renderRisk(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;const s=d.safety||{};const rg=d.rug;
   // LOCK: prefer real LP-lock % from RugCheck; fall back to authority lockdown
   let locked,lockTxt='\u2026';
@@ -1645,7 +1654,7 @@ function renderRisk(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if
   const lk=c.querySelector('[data-lock]');if(lk){lk.textContent=lockTxt;lk.className=locked==null?'lkun':(locked?'lkok':'lkbad')}
   const el=c.querySelector('[data-risk]');if(!el)return;
   el.innerHTML=mk(s.mintRev,'MINT revoked','MINT live')+mk(s.freezeRev,'FREEZE revoked','FREEZE live')+
-    '<span class="ck '+(d.dexLinks?'ok':'unk')+'">'+(d.dexLinks?'\u2713':'\u2026')+' DEX update</span>'+socsHtml(d)}
+    '<span class="ck '+(d.dexLinks?'ok':'unk')+'">'+(d.dexLinks?'\u2713':'\u2026')+' DEX update</span>'}
 
 // RugCheck lookup (server-side proxy avoids CORS) -> real LP-lock + holder/risk enrichment
 const rugQ=[];let rugBusy=false;
@@ -2081,7 +2090,7 @@ function saveGrid(){try{const arr=[];
   for(const it of items){const d=dataByMint.get(it.mint);if(!d)continue;const e=d.ev||{};
     const ageEl=it.el&&it.el.querySelector('.age');
     arr.push({ev:{mint:e.mint,name:e.name,symbol:e.symbol,traderPublicKey:e.traderPublicKey,uri:e.uri,marketCapSol:e.marketCapSol,vSolInBondingCurve:e.vSolInBondingCurve,solAmount:e.solAmount},
-      tier:it.tier,tracked:it.tracked,winner:it.winner,mig:it.mig,hot:it.hot,
+      tier:it.tier,tracked:it.tracked,winner:it.winner,mig:it.mig,hot:it.hot,hotAdv:!!it.hotAdv,peakScore:d.peakScore||0,
       baseScore:d.baseScore,baseReasons:d.baseReasons,devSol:d.devSol,rug:d.rug,
       market:d.market,mcUsd:d.mcUsd,safety:d.safety,feeShare:d.feeShare,
       sym:d.sym,name:d.name,imgUrl:d.imgUrl,lastActive:d.lastActive,peakMc:d.peakMc,
@@ -2100,6 +2109,8 @@ function restoreGrid(){let saved;try{saved=JSON.parse(localStorage.getItem(GRID_
     if(s.safety)d.safety=s.safety;if(s.mcUsd!=null)d.mcUsd=s.mcUsd;
     d.dexLinks=s.dexLinks;d.dexLive=s.dexLive;d.pairUrl=s.pairUrl;d.dexId=s.dexId;d.live=s.live;
     if(s.lastActive)d.lastActive=s.lastActive;if(s.peakMc)d.peakMc=s.peakMc;if(s.imgUrl)d.imgUrl=s.imgUrl;
+    if(s.peakScore)d.peakScore=s.peakScore; // score ratchet survives refresh — no post-reload dip
+    if(s.hotAdv){const it=items.find(i=>i.mint===e.mint);if(it)it.hotAdv=true} // one-way HOT advancement survives refresh
     const ageEl=card.querySelector('.age');if(ageEl&&s.born)ageEl.dataset.born=s.born;
     // paint the saved image directly so tiles don't re-render/flash
     if(s.imgUrl){const av=card.querySelector('[data-av]');if(av){av.style.backgroundImage='url("'+s.imgUrl+'")';av.style.backgroundSize='cover';av.style.backgroundPosition='center';av.style.backgroundRepeat='no-repeat';av.textContent=''}}
