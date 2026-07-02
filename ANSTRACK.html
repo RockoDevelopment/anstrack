@@ -267,7 +267,15 @@
   .td-chart{position:relative;background:#02040a;min-width:0}
   .td-chart iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
   .td-right{padding:18px;border-left:1px solid var(--edge2);min-width:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
-  .td-left .bchead .bav{width:88px;height:88px;font-size:30px}
+  .td-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:6px}
+  .td-head .bav{width:176px;height:176px;font-size:52px}
+  .td-head .btk{font-size:24px}
+  .td-head .td-alpha{display:flex;align-items:baseline;gap:8px}
+  .td-head .td-alpha .lbl{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut)}
+  .td-head .td-alpha .sc{font-family:var(--hud);font-weight:800;font-size:34px}
+  #tdSocs .socs{justify-content:center}
+  #tdSocs .socs a{font-size:16px;padding:8px 12px}
+  #tdSocs .socs a svg{width:16px;height:16px}
   .td-x{position:absolute;top:8px;right:12px;z-index:2;font-family:var(--hud);font-weight:800;font-size:18px;color:var(--mut);background:none;border:none;cursor:pointer;padding:4px 8px}
   .td-x:hover{color:var(--ink)}
   .td-devrow{display:flex;gap:10px;align-items:center;margin:12px 0;padding:10px;border:1px solid var(--edge2);background:rgba(0,0,0,.25)}
@@ -688,10 +696,10 @@
   <button class="td-x" id="tdClose">&times;</button>
   <div class="td-grid">
     <div class="td-left bigcard">
-      <div class="bchead">
+      <div class="td-head">
         <div class="bav" id="tdAv"></div>
-        <div><div class="btk" id="tdTk"></div><div class="bnm" id="tdNm"></div></div>
-        <div class="bnum"><div class="lbl">ALPHA</div><div class="sc" id="tdSc"></div></div>
+        <div class="btk" id="tdTk"></div><div class="bnm" id="tdNm"></div>
+        <div class="td-alpha"><span class="lbl">ALPHA</span><span class="sc" id="tdSc"></span></div>
       </div>
       <div class="td-devrow" id="tdDev"></div>
       <div class="td-mc"><div class="lbl">MARKET CAP</div><div class="num"><span id="tdMc">$&hellip;</span><span class="delta" id="tdCh"></span></div></div>
@@ -864,7 +872,12 @@ function recordLaunch(m){if(!m.mint)return;
 async function syncReg(){let reg=null,dm=null;
   try{reg=await fetch('/api/registry',{cache:'no-store'}).then(r=>r.ok?r.json():null)}catch{}
   try{dm=await fetch('/api/devmetrics',{cache:'no-store'}).then(r=>r.ok?r.json():null)}catch{}
-  if(reg){const n={};Object.keys(reg).forEach(a=>{n[a]={label:reg[a].label||short(a),kind:reg[a].kind||'whale',wins:reg[a].wins||0,rugs:reg[a].rugs||0,rugHistory:reg[a].rug_history||[],score:(reg[a].reputation&&reg[a].reputation.score)||0,hit:(reg[a].reputation&&reg[a].reputation.hit_rate)||0,launches:(reg[a].reputation&&reg[a].reputation.launches)||reg[a].launches||0}});devs=n;
+  if(reg){const prev=devs;const n={};Object.keys(reg).forEach(a=>{n[a]={label:reg[a].label||short(a),kind:reg[a].kind||'whale',wins:reg[a].wins||0,rugs:reg[a].rugs||0,rugHistory:reg[a].rug_history||[],score:(reg[a].reputation&&reg[a].reputation.score)||0,hit:(reg[a].reputation&&reg[a].reputation.hit_rate)||0,launches:(reg[a].reputation&&reg[a].reputation.launches)||reg[a].launches||0}});
+    // RATCHET across syncs: devs was replaced wholesale every 15s, so a single failed/blank /api/devmetrics round
+    // silently wiped the durable win counts — repeat-grad devs read as unknown and their launches got GATED until
+    // the next good round. A win, once known, is permanent: keep the max of old and new.
+    Object.keys(prev||{}).forEach(a=>{if(!n[a])n[a]=prev[a];else{n[a].wins=Math.max(n[a].wins||0,prev[a].wins||0);n[a].rugs=Math.max(n[a].rugs||0,prev[a].rugs||0)}});
+    devs=n;
     // merge the brain's event-sourced dev metrics (migrations = graduations = wins), rebuilt from the immutable
     // event log so they survive restarts. THIS is the durable repeat-grad source; the registry's own win count is
     // only credited via an in-memory launch map and can lag. Take the max so a known graduate is never missed.
@@ -872,6 +885,9 @@ async function syncReg(){let reg=null,dm=null;
       if(!devs[w])devs[w]={label:short(w),kind:'whale',wins:0,rugs:0,rugHistory:[],score:0,hit:0,launches:0};
       devs[w].wins=Math.max(devs[w].wins||0,mig);devs[w].rugs=Math.max(devs[w].rugs||0,rug);devs[w].launches=Math.max(devs[w].launches||0,lau)})}
     mergeTracked();
+    // DIAGNOSTIC for the repeat-grad pipeline: how many devs are currently known graduates. If this reads 0 on the
+    // deployed site, /api/registry + /api/devmetrics aren't delivering wins and THAT is why REPEAT GRAD stays empty.
+    console.info('[anstrack] known winner devs:',Object.keys(devs).filter(w=>winsOf(w)>=1).length,'\u00b7 gated pending:',gatedPending.size);
     if(typeof retryGatedLaunches==='function')retryGatedLaunches();
     if($('devList'))renderDevList();if($('bestPage')&&$('bestPage').classList.contains('show')){renderBest();renderTracked()}else renderTracked()}}
 syncReg();setInterval(syncReg,15000);
@@ -1266,7 +1282,10 @@ async function hydrateImg(el,uri,mint,sym,data){el.style.backgroundImage=gradFor
 // keep retrying images that haven't landed yet (new tokens get indexed a minute or two after launch) — an image must NEVER stay blank
 setInterval(()=>{for(const it of items){const d=dataByMint.get(it.mint);if(!d||d.imgOk)continue;const card=cardByMint.get(it.mint);if(!card)continue;const av=card.querySelector('[data-av]');if(!av)continue;
   const cands=(d.imgCands||[]).concat(d.market&&d.market.img?[d.market.img]:[],['https://dd.dexscreener.com/ds-data/tokens/solana/'+it.mint+'.png']);
-  if(cands.length)loadImgInto(av,cands,d)}},20000);
+  if(cands.length)loadImgInto(av,cands,d);
+  // a transient IPFS-gateway failure at launch means imgCands never got the real metadata image — re-run the
+  // full hydrate a few times so those cards recover instead of retrying a 404ing dd URL forever
+  if(d.ev&&d.ev.uri&&(!d.imgCands||d.imgCands.length<=1)&&(d._metaRetry=(d._metaRetry||0)+1)<=3)hydrateImg(av,d.ev.uri,it.mint,d.sym||'',d)}},20000);
 
 // state
 const seen=new Set();const cardByMint=new Map();const dataByMint=new Map();let nTrk=0,nWin=0,nMig=0;
@@ -1875,14 +1894,24 @@ function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=
   // TV chart: DexScreener embed resolves the mint to its live pair (bonding curve or AMM)
   $('tdChart').src='https://dexscreener.com/solana/'+mint+'?embed=1&theme=dark&trades=0&info=0';
   // ---- swap panel: buy/sell with flip, mirrors the SWAP section ----
-  const tokIc='<img src="'+esc((d.market&&d.market.img)||('https://dd.dexscreener.com/ds-data/tokens/solana/'+mint+'.png'))+'" onerror="this.remove()"/>';
+  // real token icon: preload candidates (pipeline-resolved image first, then market, then dd) and only paint one
+  // that actually loads — no dead <img> stubs. Letter fallback until something lands; recheck once hydrateImg
+  // resolves so the chip catches up when the image arrives late.
+  const letter=esc((d.sym||'?').slice(0,1).toUpperCase());
+  const tokenChipEl=()=>tdMode==='buy'?$('tdToIc'):$('tdFromIc');
+  const setChipIcon=()=>{const cs=[d.imgUrl,(d.market&&d.market.img),'https://dd.dexscreener.com/ds-data/tokens/solana/'+mint+'.png'].filter(Boolean);
+    let i=0;const tryNext=()=>{if(i>=cs.length)return;const src=cs[i++];const p=new Image();
+      p.onload=()=>{if(tdMint!==mint)return;const el=tokenChipEl();if(el)el.innerHTML='<img src="'+esc(src)+'"/>'};
+      p.onerror=tryNext;p.src=src};tryNext()};
+  setTimeout(()=>{if(tdMint===mint)setChipIcon()},2500); // late recheck: d.imgUrl often resolves just after open
   const tokSym='$'+esc((d.sym||short(mint)).toUpperCase());
   const price=mc>0?mc/1e9:0; // pump.fun standard 1B supply
   const fmtToks=t=>t>=1e6?(t/1e6).toFixed(2)+'M':t>=1e3?(t/1e3).toFixed(1)+'K':t.toFixed(0);
   const paint=()=>{const buy=tdMode==='buy';
     $('tdPayLbl').textContent=buy?'You pay':'You sell';
-    $('tdFromIc').className='swchip-ic '+(buy?'sol':'q');$('tdFromIc').innerHTML=buy?'\u25ce':tokIc;$('tdFromSym').textContent=buy?'SOL':tokSym;
-    $('tdToIc').className='swchip-ic '+(buy?'q':'sol');$('tdToIc').innerHTML=buy?tokIc:'\u25ce';$('tdToSym').textContent=buy?tokSym:'SOL';
+    $('tdFromIc').className='swchip-ic '+(buy?'sol':'q');$('tdFromIc').innerHTML=buy?'\u25ce':letter;$('tdFromSym').textContent=buy?'SOL':tokSym;
+    $('tdToIc').className='swchip-ic '+(buy?'q':'sol');$('tdToIc').innerHTML=buy?letter:'\u25ce';$('tdToSym').textContent=buy?tokSym:'SOL';
+    setChipIcon();
     $('tdRecvLbl').textContent='You receive (est.)';
     $('tdAmt').value=buy?((settings.amounts&&settings.amounts[0])||0.1):100;
     $('tdAmt').step=buy?'0.01':'5';
@@ -2137,8 +2166,11 @@ function restoreGrid(){let saved;try{saved=JSON.parse(localStorage.getItem(GRID_
     if(s.peakScore)d.peakScore=s.peakScore; // score ratchet survives refresh — no post-reload dip
     if(s.hotAdv){const it=items.find(i=>i.mint===e.mint);if(it)it.hotAdv=true} // one-way HOT advancement survives refresh
     const ageEl=card.querySelector('.age');if(ageEl&&s.born)ageEl.dataset.born=s.born;
-    // paint the saved image directly so tiles don't re-render/flash
+    // paint the saved image directly so tiles don't re-render/flash; if no image ever landed, re-run the full
+    // hydrate pipeline (IPFS metadata image + gateways) — without this, restored cards were stuck with only the
+    // DexScreener dd URL, which 404s for young tokens, leaving permanent letter placeholders
     if(s.imgUrl){const av=card.querySelector('[data-av]');if(av){av.style.backgroundImage='url("'+s.imgUrl+'")';av.style.backgroundSize='cover';av.style.backgroundPosition='center';av.style.backgroundRepeat='no-repeat';av.textContent=''}}
+    else{const av=card.querySelector('[data-av]');if(av)hydrateImg(av,e.uri,e.mint,s.sym||e.symbol||'',d)}
     if(s.market)updateMarket(e.mint,Object.assign({},s.market,{img:s.imgUrl,url:s.pairUrl,dexId:s.dexId,live:s.live,links:s.dexLinks}));
     repaintScore(e.mint);renderRisk(e.mint);
     if(s.mig){const c=cardByMint.get(e.mint);if(c)stampGraduated(c,e.mint)}});
