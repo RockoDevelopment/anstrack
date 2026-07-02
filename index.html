@@ -4,7 +4,39 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ANSTRACK — $ANSTRACK · The Ansem Promise</title>
-<meta name="description" content="ANSTRACK is a Solana token built on the Ansem Promise: 60% of creator fees routed straight into liquidity, provable on-chain. Built by a silent team for the trenches.">
+<meta name="description" content="ANSTRACK is a Solana token built on the Ansem Promise: 50% of creator fees routed straight into liquidity, provable on-chain. Built by a silent team for the trenches.">
+
+<!-- Favicons / app icons -->
+<link rel="icon" href="/assets/icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/icons/favicon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/icon-180-apple-touch.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/icons/icon-512.png">
+<link rel="manifest" href="/assets/site.webmanifest">
+<meta name="theme-color" content="#03060e">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://anstrackalpha.fun/">
+
+<!-- Open Graph / link previews (Discord, Telegram, Facebook, iMessage) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://anstrackalpha.fun/">
+<meta property="og:site_name" content="ANSTRACK">
+<meta property="og:title" content="ANSTRACK — $ANSTRACK · The Ansem Promise">
+<meta property="og:description" content="A Solana token built on the Ansem Promise: 50% of creator fees routed straight into liquidity, provable on-chain. Built by a silent team for the trenches.">
+<meta property="og:image" content="https://anstrackalpha.fun/assets/social/og-image-1200x630.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@AnsTrackAlpha">
+<meta name="twitter:title" content="ANSTRACK — $ANSTRACK · The Ansem Promise">
+<meta name="twitter:description" content="A Solana token built on the Ansem Promise: 50% of creator fees routed straight into liquidity, provable on-chain. Built by a silent team for the trenches.">
+<meta name="twitter:image" content="https://anstrackalpha.fun/assets/social/og-image-1200x630.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -97,7 +129,7 @@
   .split{display:flex;flex-direction:column;gap:14px}
   .bar{height:46px;display:flex;align-items:center;clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));padding:0 16px;font-family:var(--hud);font-weight:800;font-size:14px;letter-spacing:.5px}
   .bar.liq{background:linear-gradient(90deg,var(--blue),rgba(26,109,255,.25));color:#fff;width:100%}
-  .bar.ops{background:rgba(0,229,255,.08);border:1px solid var(--edge2);color:var(--ink2);width:66%}
+  .bar.ops{background:rgba(0,229,255,.08);border:1px solid var(--edge2);color:var(--ink2);width:100%}
   .bar .v{margin-left:auto;font-family:var(--mono)}
   .tok-meta{display:grid;gap:12px}
   .tk{display:flex;justify-content:space-between;border-bottom:1px solid var(--edge2);padding:11px 2px;font-family:var(--mono);font-size:13px}
@@ -130,7 +162,8 @@
 
   /* ---------- silent team ---------- */
   .team-grid{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
-  .ghost{width:96px;height:96px;display:flex;align-items:center;justify-content:center;font-size:44px;border:1px solid var(--bedge);background:rgba(26,109,255,.06);clip-path:var(--chamf)}
+  .ghost{width:96px;height:96px;display:flex;align-items:center;justify-content:center;border:1px solid var(--bedge);background:rgba(26,109,255,.06);clip-path:var(--chamf);overflow:hidden}
+  .ghost img{width:100%;height:100%;object-fit:cover;display:block}
 
   /* ---------- footer ---------- */
   footer{border-top:1px solid var(--edge2);margin-top:30px;padding:34px 0 50px}
@@ -222,7 +255,7 @@
 
     <div class="panel bull bracket" style="margin-top:24px">
       <div class="promise-grid">
-        <svg class="flow" viewBox="0 0 460 240" role="img" aria-label="60% of creator fees flow into the liquidity pool">
+        <svg class="flow" viewBox="0 0 460 240" role="img" aria-label="50% of creator fees flow into the liquidity pool">
           <!-- nodes -->
           <rect x="8" y="92" width="150" height="56" rx="2" fill="rgba(0,229,255,.06)" stroke="var(--edge2)"/>
           <text x="83" y="116" text-anchor="middle" class="node" fill="#e9fbff">CREATOR FEES</text>
@@ -234,7 +267,7 @@
 
           <!-- pipe -->
           <path id="pipe" class="pipe" d="M158 120 H302"/>
-          <text x="230" y="74" text-anchor="middle" class="pct">60%</text>
+          <text x="230" y="74" text-anchor="middle" class="pct">50%</text>
 
           <!-- animated sparks -->
           <circle class="spark" r="4"><animateMotion dur="2.4s" repeatCount="indefinite"><mpath href="#pipe"/></animateMotion></circle>
@@ -243,7 +276,7 @@
         </svg>
 
         <div class="pdesc">
-          <p><b>60% of all creator fees</b> are routed directly into the $ANSTRACK liquidity pool &mdash; no discretionary payouts, no &ldquo;trust us.&rdquo; The remaining <b>40%</b> funds project advancement: DEX updates, listings, and building out the ANSTRACK system.</p>
+          <p><b>50% of all creator fees</b> are routed directly into the $ANSTRACK liquidity pool &mdash; no discretionary payouts, no &ldquo;trust us.&rdquo; The remaining <b>50%</b> funds project advancement: DEX updates, listings, and building out the ANSTRACK system.</p>
           <p>Because it settles on Solana, every injection leaves a signature you can open in an explorer and check yourself.</p>
           <div class="chk"><span class="ic">&#10003;</span><span>Fees &rarr; liquidity, automatically</span></div>
           <div class="chk"><span class="ic">&#10003;</span><span>Every injection verifiable on-chain</span></div>
@@ -261,16 +294,16 @@
     <div class="tok-grid" style="margin-top:24px">
       <div class="panel">
         <div class="split">
-          <div class="bar liq">CREATOR FEES &rarr; LIQUIDITY <span class="v">60%</span></div>
-          <div class="bar ops">OPERATIONS &amp; SYSTEM <span class="v">40%</span></div>
+          <div class="bar liq">CREATOR FEES &rarr; LIQUIDITY <span class="v">50%</span></div>
+          <div class="bar ops">OPERATIONS &amp; SYSTEM <span class="v">50%</span></div>
         </div>
-        <p style="color:var(--mut);font-family:var(--mono);font-size:11px;margin-top:14px">The 60% liquidity routing is the Ansem Promise. The remaining 40% sustains the ANSTRACK tracking system that this token funds.</p>
+        <p style="color:var(--mut);font-family:var(--mono);font-size:11px;margin-top:14px">The 50% liquidity routing is the Ansem Promise. The remaining 50% sustains the ANSTRACK tracking system that this token funds.</p>
       </div>
       <div class="panel">
         <div class="tok-meta">
           <div class="tk"><span class="k">TICKER</span><span class="vv">$ANSTRACK</span></div>
           <div class="tk"><span class="k">CHAIN</span><span class="vv">SOLANA</span></div>
-          <div class="tk"><span class="k">FEES TO LIQUIDITY</span><span class="vv">60%</span></div>
+          <div class="tk"><span class="k">FEES TO LIQUIDITY</span><span class="vv">50%</span></div>
           <div class="tk"><span class="k">CONTRACT</span><span class="vv soon">COMING SOON</span></div>
           <div class="tk"><span class="k">LIQUIDITY</span><span class="vv">AUTO-INJECTED</span></div>
           <div class="tk"><span class="k">LP LOCK</span><span class="vv">BURNED AT GRADUATION</span></div>
@@ -304,10 +337,10 @@
     <div class="eyebrow">WHO BUILT THIS</div>
     <div class="panel bull bracket">
       <div class="team-grid">
-        <div class="ghost">&#9676;</div>
+        <div class="ghost"><img src="data:image/webp;base64,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" alt="Rocko dev logo"></div>
         <div>
-          <h2 style="font-size:24px;margin-bottom:10px">A silent development company.</h2>
-          <p class="sub">ANSTRACK was created by a development company that chooses to stay anonymous. No faces, no founder cult &mdash; just shipped code and on-chain proof. We&rsquo;d rather be judged by what the contract does than by who we are. The promise is verifiable; that&rsquo;s the point. Just Kidding, Rocko built it and he wants you to know that.</p>
+          <h2 style="font-size:24px;margin-bottom:10px">ROCKO BUILT IT.</h2>
+          <p class="sub">Rocko is a developer with a few applications in the works, including proprietary infrastructure of his own. Tired of losing money to rugs and flying blind on launches, he built the tool he wished existed: a terminal that surfaces developer history, tracks launches, and reads market activity as it happens. ANSTRACK exists so you can see the play before you&rsquo;re the exit.</p>
         </div>
       </div>
     </div>
