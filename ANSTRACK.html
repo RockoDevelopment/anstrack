@@ -268,7 +268,7 @@
   .td-chart iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
   .td-right{padding:18px;border-left:1px solid var(--edge2);min-width:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
   .td-head{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
-  .td-head .bav{width:100%;height:240px;font-size:52px}
+  .td-head .bav{width:100%;height:280px;font-size:52px}
   .td-title{display:flex;align-items:baseline;justify-content:space-between;width:100%}
   .td-title .btk{font-size:24px}
   .td-title .td-alpha{display:flex;align-items:baseline;gap:8px}
@@ -1321,7 +1321,8 @@ function renderTape(){const live=items.filter(isActiveMig);
   $('tape').querySelectorAll('.tbuy').forEach(el=>el.onclick=()=>{const d=dataByMint.get(el.dataset.mint);if(d)openBuy(d.ev,liveScore(d),'auto')})}
 function isNewDevHot(it,d){return !!(it&&!it.tracked&&!it.winner&&!it.mig&&isHotRunner(d))}
 function applyFilters(){
-  items.forEach(it=>{const dd=dataByMint.get(it.mint);
+  items.forEach(it=>{try{const dd=dataByMint.get(it.mint);
+    if(!dd){it.el.hidden=true;return} // data entry gone (culled) — hide the orphan card, never let it break the pass
     if(mcOf(dd)>=500000||isRuggedTok(dd)){it.el.hidden=true;return} // removed from all sections only at rugged/crashed or 500k+
     // REPEAT-GRAD UPGRADE (the fix): it.winner was only ever set at launch, but a dev is usually only KNOWN to be a
     // prior graduate later — when the brain credits them, a sync lands, or another of their tokens graduates. So a
@@ -1342,7 +1343,7 @@ function applyFilters(){
     else if(active.hot)show=!it.tracked&&!it.mig&&(it.hotAdv?it.winner:isHotRunner(dd)); // HOT: live runners + advanced repeat-grads (one-way)
     else if(active.mig)show=it.mig&&isActiveMig(it);             // MIGRATED means actual migration only
     else show=true;
-    it.el.hidden=!show})}
+    it.el.hidden=!show}catch(err){try{it.el.hidden=true}catch{};console.warn('[anstrack] filter skipped a bad card:',it&&it.mint,err)}})}
 // highest-scored tokens float to the top — reorder via CSS `order` (no DOM moves = no flicker)
 function resortFeed(){const ranked=items.map(it=>({it,sc:(()=>{const d=dataByMint.get(it.mint);return d?liveScore(d):0})()})).sort((a,b)=>b.sc-a.sc);
   ranked.forEach((r,i)=>{if(r.it.el.style.order!=i)r.it.el.style.order=i})}
