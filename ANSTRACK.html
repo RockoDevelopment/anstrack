@@ -1805,7 +1805,7 @@ async function openKolCard(mint){const d=dataByMint.get(mint);if(!d)return;const
   $('cardTitle').innerHTML='\ud83d\udce2 KOL OUT';$('cardNote').textContent='Your ANSTRACK call card \u2014 save it or post to X with the call prefilled.';
   await ansRenderCard($('ansCard'),{sym,eyebrow:'called at '+(mc?fmtK(mc):'?'),hero:String(score||0),heroSize:196,heroY:506,heroFill:'#00e5ff',heroGlow:'rgba(0,180,255,.7)',sub:'/100  ALPHA SCORE',line2:tag+'  \u00b7  @anstrack',line2Y:628});
   _cardName='anstrack_'+sym+'_kol.png';
-  $('cardMsg').value='\ud83d\udce2 $'+sym+' \u2014 caught live on ANSTRACK\nalpha score '+score+'/100 \u00b7 called at '+(mc?fmtK(mc):'?')+'\nCA: '+mint+'\nNFA \u00b7 anstrack alpha terminal';
+  $('cardMsg').value='\ud83d\udce2 $'+sym+' \u2014 caught live on@AnsTrackAlpha \nalpha score '+score+'/100 \u00b7 called at '+(mc?fmtK(mc):'?')+'\nCA: '+mint+'\nNFA \u00b7 @AnsTrackAlpha terminal';
   $('cardScrim').classList.add('show');
 }
 function fmtDur(ms){const s=Math.floor(ms/1000);if(s<60)return s+'s';const m=Math.floor(s/60);if(m<60)return m+'m, '+(s%60)+'s';const h=Math.floor(m/60);return h+'h, '+(m%60)+'m';}
@@ -1814,7 +1814,7 @@ async function openPnlCard(pos,exitMc){const sym=(''+(pos.sym||'token')).toUpper
   $('cardTitle').innerHTML='\ud83d\udcb0 PnL CARD';$('cardNote').textContent='Your result card \u2014 save it or post your gain to X.';
   await ansRenderCard($('ansCard'),{sym,eyebrow:'caught live at '+fmtK(pos.entryMc||0),hero:ms,heroSize:186,heroY:512,heroFill:up?'#22e06a':'#ff3b6b',heroGlow:up?'rgba(0,255,120,.7)':'rgba(255,59,107,.6)',caller:'@anstrack',line2:held+'  \u00b7  peak '+fmtK(peak),line2Y:650});
   _cardName='anstrack_'+sym+'_pnl.png';
-  $('cardMsg').value='\ud83d\udcb0 $'+sym+' '+ms+' ('+(pct>=0?'+':'')+pct+'%) \u2014 caught live on ANSTRACK\ncalled at '+fmtK(pos.entryMc||0)+' \u00b7 '+held+'\nNFA \u00b7 anstrack alpha terminal';
+  $('cardMsg').value='\ud83d\udcb0 $'+sym+' '+ms+' ('+(pct>=0?'+':'')+pct+'%) \u2014 caught live on @AnsTrackAlpha\ncalled at '+fmtK(pos.entryMc||0)+' \u00b7 '+held+'\nNFA \u00b7 @AnsTrackAlpha terminal';
   $('cardScrim').classList.add('show');
 }
 if($('cardSave'))$('cardSave').onclick=()=>ansDownload($('ansCard'),_cardName);
