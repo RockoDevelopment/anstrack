@@ -269,7 +269,7 @@
   .td-right{padding:18px;border-left:1px solid var(--edge2);min-width:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
   #tdScrim .td-left{display:flex;flex-direction:column;overflow:hidden}
   #tdScrim .td-head{flex:1 1 auto;display:flex;flex-direction:column;gap:10px;margin-bottom:10px;min-height:0}
-  #tdScrim .td-head .bav{flex:1 1 auto;min-height:0;height:auto;width:100%;font-size:64px;background-size:cover;background-position:center}
+  #tdScrim .td-head .bav{flex:1 1 auto;min-height:0;height:auto;width:auto;aspect-ratio:1/1;max-width:100%;align-self:center;background-size:cover;background-position:center;font-size:64px}
   #tdScrim .td-title{display:flex;align-items:baseline;justify-content:space-between;width:100%}
   #tdScrim .td-title .btk{font-size:24px}
   #tdScrim .td-title .td-alpha{display:flex;align-items:baseline;gap:8px}
@@ -1383,6 +1383,7 @@ function refreshStats(){let t=0,w=0,h=0,m=0;items.forEach(it=>{const d=dataByMin
   $('sTrk').textContent=t;$('sWin').textContent=w;$('sHot').textContent=h;$('sMig').textContent=m}
 function drop(it,i,permanent){it.el.remove();cardByMint.delete(it.mint);items.splice(i,1);if(permanent)dataByMint.delete(it.mint);else seen.delete(it.mint);saveGrid()}
 setInterval(sweepStale,30000);
+setTimeout(sweepStale,1500); // STARTUP SWEEP: clear restored zombies immediately after grid restore, not 30s later — stale cards must never greet the user at boot
 $('pills').addEventListener('click',ev=>{const c=ev.target.closest('.pill');if(!c)return;const k=c.dataset.k;
   // single-select radio: exactly one page is ALWAYS selected (clicking the active one is a no-op, never clears to none)
   ['all','tracked','winner','hot','mig'].forEach(x=>active[x]=(x===k));
@@ -1461,7 +1462,7 @@ function addLaunch(e,opts){opts=opts||{};
   card.innerHTML='<div class="inner"><div class="scan"></div>'+
     '<div class="chead"><div class="av" data-av></div>'+
       '<div class="cid"><div class="tk">'+(sym?'<span class="tkr sc-'+tier+'">$'+esc(sym)+'</span>':'')+'<span class="nm">'+esc(name)+'</span></div>'+
-        '<div class="dv" title="copy dev wallet">'+(d?'<span class="label">'+esc(d.label)+'</span>':'')+'<span>'+(dev?short(dev):'?')+'</span>'+(d&&d.wins?'<span class="stars">\u2605'+d.wins+'</span>':'')+'<span>\u00b7 <span class="age" data-born="'+Date.now()+'">now</span></span></div></div>'+
+        '<div class="dv" title="copy contract address">'+(d?'<span class="label">'+esc(d.label)+'</span>':'')+'<span>'+short(e.mint)+' \u29c9</span>'+(d&&d.wins?'<span class="stars">\u2605'+d.wins+'</span>':'')+'<span>\u00b7 <span class="age" data-born="'+Date.now()+'">now</span></span></div></div>'+
       '<div class="headr"><span class="heat '+tier+'">'+(opts.mig&&tier==='grad'&&rep.wins<=1?'NEW GRAD':heatLabel(tier))+'</span><span class="promise" data-star title="ANSOM PROMISE \u2605 \u2014 creator fees routed to auto-liquidity via pump.fun fee-sharing"><span class="pstar">\u2605</span> ANSOM PROMISE</span></div></div>'+
     '<div class="readouts"><div class="ro mc"><div class="lbl">MARKET CAP</div><div class="num"><span data-mc>'+(mcUsd?fmtUsd(mcUsd):'$\u2026')+'</span><span class="delta flat" data-delta>\u2014</span></div></div>'+
       '<div class="ro sc"><div class="lbl">ALPHA</div><div class="num sc-'+tier+'" data-sc>'+alpha+'</div></div></div>'+
@@ -1475,7 +1476,7 @@ function addLaunch(e,opts){opts=opts||{};
   if(rep.serial)card.classList.add('serial');
   hydrateImg(card.querySelector('[data-av]'),e.uri,e.mint,sym,dataByMint.get(e.mint));
   if(opts.img){loadImgInto(card.querySelector('[data-av]'),[opts.img],dataByMint.get(e.mint))}
-  card.querySelector('.dv').onclick=()=>{if(dev)navigator.clipboard?.writeText(dev)};
+  card.querySelector('.dv').onclick=ev=>{ev.stopPropagation();try{navigator.clipboard&&navigator.clipboard.writeText(e.mint)}catch{}const el=ev.currentTarget;el.style.color='var(--up)';setTimeout(()=>el.style.color='',800)};
   card.querySelector('.act-why').onclick=()=>openWhy(e.mint);
   const rb=card.querySelector('.act-report');if(rb)rb.onclick=()=>openReport(dev,sym);
   card.querySelector('.act-buy').onclick=()=>{const dd=dataByMint.get(e.mint)||{};const migratedNow=!!(dd.live||(dd.pairUrl&&dd.dexId&&!/pumpfun/.test(dd.dexId||''))||card.dataset.tier==='grad');openBuy(e,alpha,migratedNow?'auto':null)};
@@ -1505,7 +1506,8 @@ function stampGraduated(c,mint){const it=items.find(i=>i.mint===mint);if(it){it.
 function markMigrated(e){const mint=e.mint;if(!mint)return;
   const info=launchInfo.get(mint)||{};const dev=e.traderPublicKey||info.dev||'';
   const relevant=isTracked(dev)||isWinner(dev); // status BEFORE we credit this migration
-  if(dev)creditWin(dev); // self-building winner list: this dev graduated a token
+  const d0=dataByMint.get(mint);
+  if(dev&&!(d0&&d0.winCredited)){creditWin(dev);if(d0)d0.winCredited=true} // one credit per token, whether the ws event or the market poll saw it first
   startRugWatch(mint,dev); // watch the next 5 minutes for a dump
   let c=cardByMint.get(mint);
   if(c){nMig++;stampGraduated(c,mint);return} // our token graduated
@@ -1619,7 +1621,12 @@ function repaintScore(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);
 function updateMarket(mint,m){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;
   if(m.img&&!d.imgOk){const av=c.querySelector('[data-av]');if(av)loadImgInto(av,[m.img],d)}
   if(m.url){d.pairUrl=m.url;d.dexId=m.dexId;d.live=!!m.live;
-    if(m.live){const chart=c.querySelector('a.btn.ghost');if(chart)chart.href=m.url}} // point CHART at the live AMM pair, not the bonding curve
+    if(m.live){const chart=c.querySelector('a.btn.ghost');if(chart)chart.href=m.url} // point CHART at the live AMM pair, not the bonding curve
+    // MIGRATION FALLBACK: the pair now lives on a non-pumpfun AMM — that IS a migration, whether or not the
+    // websocket event arrived. Missed events used to leave tokens unmarked forever ($200k cards with no
+    // GRADUATED badge stuck outside MIGRATED) and, worse, silently skip creditWin — starving the winner list
+    // REPEAT GRAD depends on. Route through the same markMigrated path; winCredited makes it idempotent.
+    if(m.live&&!d.migrated)markMigrated({mint,traderPublicKey:(d.ev&&d.ev.traderPublicKey)||''})}
   if(m.links)d.dexLinks=true;
   if(m.x)d.xUrl=m.x;
   if(m.tg)d.tgUrl=m.tg;if(m.web)d.webUrl=m.web;
