@@ -1792,7 +1792,7 @@ async function ansRenderCard(cv,o){
   if(o.sub){x.fillStyle='#bee9ff';x.font='800 40px Orbitron';x.fillText(o.sub,RX,(o.heroY||512)+54);}
   if(o.caller){x.fillStyle='#fff';x.font='800 52px Orbitron';x.fillText(o.caller,RX,592);}
   if(o.line2){x.fillStyle='#96b4cd';x.font='600 34px Orbitron';x.fillText(o.line2,RX,o.line2Y||650);}
-  x.textAlign='center';x.fillStyle='#7aa0bb';x.font='600 22px Orbitron';x.fillText('@anstrack  \u00b7  x.com/anstrack  \u00b7  t.me/anstrack',1012,716);
+  x.textAlign='center';x.fillStyle='#7aa0bb';x.font='600 22px Orbitron';x.fillText('@anstrackalpha  \u00b7  x.com/anstrackalpha  \u00b7  t.me/anstrackalpha',1012,716);
   x.strokeStyle='#00e5ff';x.lineWidth=3;ansRR(x,16,16,W-32,H-32,30);x.shadowColor='rgba(0,229,255,.5)';x.shadowBlur=10;x.stroke();x.shadowBlur=0;
 }
 function ansDownload(cv,name){cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);},'image/png');}
@@ -1803,16 +1803,16 @@ async function openKolCard(mint){const d=dataByMint.get(mint);if(!d)return;const
   const score=scEl?(parseInt(scEl.textContent,10)||0):Math.round(liveScore(d)); // always the exact number shown on the token card, not a recomputed one
   const rep=devRep(dev);const tag=rep&&rep.tier==='ansem'?'ANSEM PICK':rep&&(rep.tier==='winner'||rep.tier==='proven'||rep.tier==='elite')?'REPEAT GRAD DEV':'CAUGHT LIVE';
   $('cardTitle').innerHTML='\ud83d\udce2 KOL OUT';$('cardNote').textContent='Your ANSTRACK call card \u2014 save it or post to X with the call prefilled.';
-  await ansRenderCard($('ansCard'),{sym,eyebrow:'called at '+(mc?fmtK(mc):'?'),hero:String(score||0),heroSize:196,heroY:506,heroFill:'#00e5ff',heroGlow:'rgba(0,180,255,.7)',sub:'/100  ALPHA SCORE',line2:tag+'  \u00b7  @anstrack',line2Y:628});
+  await ansRenderCard($('ansCard'),{sym,eyebrow:'called at '+(mc?fmtK(mc):'?'),hero:String(score||0),heroSize:196,heroY:506,heroFill:'#00e5ff',heroGlow:'rgba(0,180,255,.7)',sub:'/100  ALPHA SCORE',line2:tag+'  \u00b7  @anstrackalpha',line2Y:628});
   _cardName='anstrack_'+sym+'_kol.png';
-  $('cardMsg').value='\ud83d\udce2 $'+sym+' \u2014 caught live on@AnsTrackAlpha \nalpha score '+score+'/100 \u00b7 called at '+(mc?fmtK(mc):'?')+'\nCA: '+mint+'\nNFA \u00b7 @AnsTrackAlpha terminal';
+  $('cardMsg').value='\ud83d\udce2 $'+sym+' \u2014 caught live on @AnsTrackAlpha \nalpha score '+score+'/100 \u00b7 called at '+(mc?fmtK(mc):'?')+'\nCA: '+mint+'\nNFA \u00b7 @AnsTrackAlpha terminal';
   $('cardScrim').classList.add('show');
 }
 function fmtDur(ms){const s=Math.floor(ms/1000);if(s<60)return s+'s';const m=Math.floor(s/60);if(m<60)return m+'m, '+(s%60)+'s';const h=Math.floor(m/60);return h+'h, '+(m%60)+'m';}
 async function openPnlCard(pos,exitMc){const sym=(''+(pos.sym||'token')).toUpperCase();const mult=pos.entryMc?exitMc/pos.entryMc:0;
   const ms=mult>=10?mult.toFixed(0)+'X':mult.toFixed(1)+'X';const pct=Math.round((mult-1)*100);const held=fmtDur(Date.now()-(pos.ts||Date.now()));const peak=Math.max(exitMc||0,pos.peakMc||0,pos.entryMc||0);const up=mult>=1;
   $('cardTitle').innerHTML='\ud83d\udcb0 PnL CARD';$('cardNote').textContent='Your result card \u2014 save it or post your gain to X.';
-  await ansRenderCard($('ansCard'),{sym,eyebrow:'caught live at '+fmtK(pos.entryMc||0),hero:ms,heroSize:186,heroY:512,heroFill:up?'#22e06a':'#ff3b6b',heroGlow:up?'rgba(0,255,120,.7)':'rgba(255,59,107,.6)',caller:'@anstrack',line2:held+'  \u00b7  peak '+fmtK(peak),line2Y:650});
+  await ansRenderCard($('ansCard'),{sym,eyebrow:'caught live at '+fmtK(pos.entryMc||0),hero:ms,heroSize:186,heroY:512,heroFill:up?'#22e06a':'#ff3b6b',heroGlow:up?'rgba(0,255,120,.7)':'rgba(255,59,107,.6)',caller:'@anstrackalpha',line2:held+'  \u00b7  peak '+fmtK(peak),line2Y:650});
   _cardName='anstrack_'+sym+'_pnl.png';
   $('cardMsg').value='\ud83d\udcb0 $'+sym+' '+ms+' ('+(pct>=0?'+':'')+pct+'%) \u2014 caught live on @AnsTrackAlpha\ncalled at '+fmtK(pos.entryMc||0)+' \u00b7 '+held+'\nNFA \u00b7 @AnsTrackAlpha terminal';
   $('cardScrim').classList.add('show');
