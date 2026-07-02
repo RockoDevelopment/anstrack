@@ -254,6 +254,26 @@
   .tokdrop .tnone{padding:12px;font-family:var(--mono);font-size:11px;color:var(--mut)}
   /* big lookup card modal */
   #lookScrim .modal{max-width:560px}
+  /* instant-link icons on token cards (X / web / telegram) */
+  .headr .socs{display:flex;gap:5px}
+  .headr .socs a{font-family:var(--mono);font-size:12px;line-height:1;color:var(--cyan);text-decoration:none;border:1px solid var(--edge2);padding:2.5px 5px;background:rgba(0,229,255,.05);clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px))}
+  .headr .socs a:hover{border-color:var(--cyan);background:rgba(0,229,255,.14)}
+  /* token detail modal: 80% screen, tile-styled — info left / chart center / swap right */
+  #tdScrim .modal{width:min(80vw,1560px);max-width:80vw}
+  #tdScrim .mi{padding:0;position:relative;max-height:82vh}
+  .td-grid{display:grid;grid-template-columns:320px minmax(0,1fr) 300px;height:min(78vh,900px)}
+  .td-left{padding:18px;border-right:1px solid var(--edge2);overflow-y:auto;min-width:0}
+  .td-chart{position:relative;background:#02040a;min-width:0}
+  .td-chart iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .td-right{padding:18px;border-left:1px solid var(--edge2);overflow-y:auto;min-width:0}
+  .td-x{position:absolute;top:8px;right:12px;z-index:2;font-family:var(--hud);font-weight:800;font-size:18px;color:var(--mut);background:none;border:none;cursor:pointer;padding:4px 8px}
+  .td-x:hover{color:var(--ink)}
+  .td-devrow{display:flex;gap:10px;align-items:center;margin:12px 0;padding:10px;border:1px solid var(--edge2);background:rgba(0,0,0,.25)}
+  .td-devrow .bav{width:40px;height:40px}
+  .td-devrow .dnm{font-family:var(--hud);font-weight:800;font-size:13px;color:var(--ink)}
+  .td-devrow .dwl{font-family:var(--mono);font-size:10px;color:var(--mut);cursor:pointer}
+  .td-devrow .dwl:hover{color:var(--ink)}
+  .td-right .sectit{margin-top:0}
   #setScrim .modal{width:min(900px,96vw);max-height:94vh}
   .feedacc{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow:auto;margin:6px 0}
   .feedacc .fa{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.03);border:1px solid var(--edge2);padding:7px 10px;font-family:var(--mono);font-size:11px}
@@ -652,6 +672,34 @@
 </div></div></div>
 
 <!-- DEV DETAIL placeholder ends -->
+<!-- TOKEN DETAIL: large tile-styled modal (info | TV chart | swap) opened by clicking a token card -->
+<div class="scrim" id="tdScrim"><div class="modal"><div class="mi">
+  <button class="td-x" id="tdClose">&times;</button>
+  <div class="td-grid">
+    <div class="td-left bigcard">
+      <div class="bchead">
+        <div class="bav" id="tdAv"></div>
+        <div><div class="btk" id="tdTk">$\u2014<span class="star" id="tdStar" style="margin-left:6px">\u2605</span></div><div class="bnm" id="tdNm"></div></div>
+        <div class="bnum"><div class="lbl">ALPHA</div><div class="sc" id="tdSc">\u2014</div></div>
+      </div>
+      <div class="td-devrow" id="tdDev"></div>
+      <div class="brow"><span>MC <b id="tdMc">$\u2014</b></span><span>5M <b id="tdCh">\u2014</b></span><span>VOL 5M <b id="tdVol">$\u2014</b></span><span>LIQ <b id="tdLiq">$\u2014</b></span></div>
+      <div class="badges" id="tdBadges"></div>
+      <div class="sectit">VERIFY BEFORE YOU SIGN &mdash; on-chain</div>
+      <div class="bchecks" id="tdChecks"></div>
+      <div class="kv"><span>mint</span><b id="tdMint" style="font-size:10px;word-break:break-all;text-align:right;cursor:pointer" title="copy CA">&mdash;</b></div>
+    </div>
+    <div class="td-chart"><iframe id="tdChart" title="chart" allow="clipboard-write"></iframe></div>
+    <div class="td-right">
+      <div class="sectit">SWAP</div>
+      <div class="quick" id="tdQuick"></div>
+      <div class="field" style="flex-direction:column;align-items:stretch;gap:8px;margin-top:12px">size (SOL) <input id="tdSize" type="number" value="0.1" step="0.05" min="0"/> slippage % <input id="tdSlip" type="number" value="10" step="1" min="0"/></div>
+      <div class="mrow" style="flex-direction:column;align-items:stretch"><button class="btn ape" id="tdBuy">CONNECT WALLET TO BUY</button><a class="btn ghost" id="tdPump" target="_blank" rel="noopener">pump.fun &#8599;</a></div>
+      <div class="bstat" id="tdStat"></div>
+      <div class="socs" id="tdSocs" style="display:flex;gap:6px;margin-top:14px"></div>
+    </div>
+  </div>
+</div></div></div>
 <div class="scrim" id="lookScrim"><div class="modal"><div class="mi">
   <div class="bigcard">
     <div class="bchead">
@@ -1181,7 +1229,7 @@ async function hydrateImg(el,uri,mint,sym,data){el.style.backgroundImage=gradFor
   let meta=null;
   for(const c of ipfsCands(uri)){try{const r=await fetch(c,{cache:'force-cache'});if(r.ok){meta=await r.json();if(meta)break}}catch{}}
   if(!meta)return;
-  if(data){const ex=meta.extensions||{};const xRaw=meta.twitter||meta.x||ex.twitter||ex.x;const soc=[meta.website,meta.twitter,meta.x,meta.telegram,ex.website,ex.twitter,ex.telegram].some(v=>v&&(''+v).length>3);data.socials=!!soc;if(xRaw)data.xUrl=xRaw;renderRisk(mint)}
+  if(data){const ex=meta.extensions||{};const xRaw=meta.twitter||meta.x||ex.twitter||ex.x;const webRaw=meta.website||ex.website;const tgRaw=meta.telegram||ex.telegram;const soc=[meta.website,meta.twitter,meta.x,meta.telegram,ex.website,ex.twitter,ex.telegram].some(v=>v&&(''+v).length>3);data.socials=!!soc;if(xRaw)data.xUrl=xRaw;if(webRaw)data.webUrl=webRaw;if(tgRaw)data.tgUrl=tgRaw;renderRisk(mint);if(typeof renderSocs==='function')renderSocs(mint)}
   if(meta.image){const ic=ipfsCands(meta.image);if(data)data.imgCands=cands.concat(ic);if(!data||!data.imgOk)loadImgInto(el,ic,data)}}
 // keep retrying images that haven't landed yet (new tokens get indexed a minute or two after launch) — an image must NEVER stay blank
 setInterval(()=>{for(const it of items){const d=dataByMint.get(it.mint);if(!d||d.imgOk)continue;const card=cardByMint.get(it.mint);if(!card)continue;const av=card.querySelector('[data-av]');if(!av)continue;
@@ -1353,14 +1401,14 @@ function addLaunch(e,opts){opts=opts||{};
     '<div class="chead"><div class="av" data-av></div>'+
       '<div class="cid"><div class="tk">'+(sym?'<span class="tkr sc-'+tier+'">$'+esc(sym)+'</span>':'')+'<span class="nm">'+esc(name)+'</span></div>'+
         '<div class="dv" title="copy dev wallet">'+(d?'<span class="label">'+esc(d.label)+'</span>':'')+'<span>'+(dev?short(dev):'?')+'</span>'+(d&&d.wins?'<span class="stars">\u2605'+d.wins+'</span>':'')+'<span>\u00b7 <span class="age" data-born="'+Date.now()+'">now</span></span></div></div>'+
-      '<div class="headr"><span class="heat '+tier+'">'+heatLabel(tier)+'</span><span class="promise" data-star title="ANSOM PROMISE \u2605 \u2014 creator fees routed to auto-liquidity via pump.fun fee-sharing"><span class="pstar">\u2605</span> ANSOM PROMISE</span></div></div>'+
+      '<div class="headr"><span class="heat '+tier+'">'+(opts.mig&&tier==='grad'&&rep.wins<=1?'NEW GRAD':heatLabel(tier))+'</span><span class="socs" data-socs></span><span class="promise" data-star title="ANSOM PROMISE \u2605 \u2014 creator fees routed to auto-liquidity via pump.fun fee-sharing"><span class="pstar">\u2605</span> ANSOM PROMISE</span></div></div>'+
     '<div class="readouts"><div class="ro mc"><div class="lbl">MARKET CAP</div><div class="num"><span data-mc>'+(mcUsd?fmtUsd(mcUsd):'$\u2026')+'</span><span class="delta flat" data-delta>\u2014</span></div></div>'+
       '<div class="ro sc"><div class="lbl">ALPHA</div><div class="num sc-'+tier+'" data-sc>'+alpha+'</div></div></div>'+
     segs(alpha,tier)+
     '<div class="sub"><span>DEV TODAY <b data-today>'+devLaunchesToday(dev)+'</b></span><span>LIQ <b data-liq>'+fmtK(vsol*(solUsd||0))+'</b></span><span>LOCK <b data-lock class="lkun">\u2026</b></span></div>'+
     '<div class="risk" data-risk><span class="ck unk">\u2026 verifying on-chain</span></div>'+
     '<div class="mx"><span>VOL 5M <b data-vol>$\u2026</b></span><span>DEV BUY <b>'+fmtK(sc.devSol*(solUsd||0))+'</b></span><span>CURVE <b>'+fmtK(vsol*(solUsd||0))+'</b></span></div>'+
-    '<div class="badges">'+(opts.hot&&!cat?'<span class="bdg hot">\ud83d\udd25 HOT RUNNER</span>':'')+(rep.tier?'<span class="bdg '+(rep.tier==='rugger'?'rugger':rep.tier==='elite'?'elite':rep.tier==='tracked'?'trk':'grad')+'">'+(rep.tier==='rugger'?'\u26a0 ':rep.tier==='elite'?'\ud83d\udc51 ':rep.tier==='winner'||rep.tier==='proven'?'\u2726 ':'')+rep.label+'</span>':'')+(trackedFlag&&(rep.tier==='tracked'||rep.tier==='rugger')?'':trackedFlag?'<span class="bdg trk">TRACKED</span>':'')+'</div>'+
+    '<div class="badges">'+(opts.hot&&!cat?'<span class="bdg hot">\ud83d\udd25 HOT RUNNER</span>':'')+(rep.tier?'<span class="bdg '+(rep.tier==='rugger'?'rugger':rep.tier==='elite'?'elite':rep.tier==='tracked'?'trk':'grad')+'">'+(rep.tier==='rugger'?'\u26a0 ':rep.tier==='elite'?'\ud83d\udc51 ':rep.tier==='winner'||rep.tier==='proven'?'\u2726 ':'')+(opts.mig&&rep.tier==='winner'&&rep.wins<=1?'1ST MIGRATION':rep.label)+'</span>':'')+(trackedFlag&&(rep.tier==='tracked'||rep.tier==='rugger')?'':trackedFlag?'<span class="bdg trk">TRACKED</span>':'')+'</div>'+
     '<div class="acts"><button class="btn ape act-buy">APE \u2192</button><button class="btn sm act-why">WHY</button>'+(rep.tier==='rugger'?'<button class="btn report sm act-report">\u26a0 REPORT</button>':'')+'<a class="btn ghost sm" href="https://pump.fun/'+e.mint+'" target="_blank" rel="noopener">CHART \u2197</a><button class="btn sm act-kol">\ud83d\udce2 KOL OUT</button></div>'+
     '</div>';
   if(rep.serial)card.classList.add('serial');
@@ -1371,6 +1419,7 @@ function addLaunch(e,opts){opts=opts||{};
   const rb=card.querySelector('.act-report');if(rb)rb.onclick=()=>openReport(dev,sym);
   card.querySelector('.act-buy').onclick=()=>{const dd=dataByMint.get(e.mint)||{};const migratedNow=!!(dd.live||(dd.pairUrl&&dd.dexId&&!/pumpfun/.test(dd.dexId||''))||card.dataset.tier==='grad');openBuy(e,alpha,migratedNow?'auto':null)};
   {const kb=card.querySelector('.act-kol');if(kb)kb.onclick=()=>openKolCard(e.mint);}
+  card.onclick=ev=>{if(ev.target.closest('button,a,.dv,.socs'))return;openTokenDetail(e.mint)}; // bare-space click -> full token detail modal
   $('cards').insertBefore(card,$('cards').firstChild);
   items.unshift({el:card,mint:e.mint,tier,tracked:trackedFlag,winner:winnerFlag,mig:!!opts.mig,hot:!!opts.hot});
   queueSafety(e.mint);queueRug(e.mint);queueFeeShare(e.mint);repaintScore(e.mint);refreshHot();
@@ -1384,6 +1433,11 @@ function stampGraduated(c,mint){const it=items.find(i=>i.mint===mint);if(it){it.
   // (a true repeat grad). A token graduating *now* belongs on MIGRATED, not REPEAT GRAD, unless its dev was
   // already a known graduate at launch — in which case it.winner was already true from card creation.
   const d=dataByMint.get(mint);if(d)d.mig=d.migrated=true;
+  // first-vs-repeat labeling: the win just credited for THIS migration counts toward winsOf, so wins<=1 means
+  // this token IS the dev's first migration — badge it NEW GRAD / 1ST MIGRATION, not REPEAT GRAD / MIGRATED BEFORE
+  const gdev=d&&d.ev&&d.ev.traderPublicKey;const firstGrad=!gdev||winsOf(gdev)<=1;
+  if(it&&!it.tracked){const hb=c.querySelector('.heat');if(hb){hb.textContent=firstGrad?'NEW GRAD':'REPEAT GRAD';hb.className='heat grad';hb.style.display=''}}
+  if(firstGrad)c.querySelectorAll('.bdg').forEach(b=>{if(/MIGRATED BEFORE/.test(b.textContent))b.textContent='\u2726 1ST MIGRATION'});
   const chart=c.querySelector('a.btn.ghost');if(chart)chart.href=(d&&d.pairUrl)||('https://dexscreener.com/solana/'+mint);
   const bd=c.querySelector('.badges');if(bd&&!c.querySelector('.bdg.mig')){const s=document.createElement('span');s.className='bdg mig';s.textContent='\u2934 GRADUATED';bd.prepend(s)}
   c.classList.remove('flash-up');void c.offsetWidth;c.classList.add('flash-up');applyFilters();renderTape();saveGrid()}
@@ -1412,8 +1466,10 @@ function pairBest(d){const best={};(d.pairs||[]).forEach(p=>{const a=p.baseToken
   if(!best[a]||rank>best[a]._rank){const inf=p.info||{};
   const hasSite=(inf.websites||[]).some(w=>w&&w.url&&!/pump\.fun/i.test(w.url));
   const xSoc=(inf.socials||[]).find(s=>s&&/^(twitter|x)$/i.test(s.type||s.platform||''));
+  const tgSoc=(inf.socials||[]).find(s=>s&&/^telegram$/i.test(s.type||s.platform||''));
+  const webSite=(inf.websites||[]).find(w=>w&&w.url&&!/pump\.fun/i.test(w.url));
   const hasSoc=(inf.socials||[]).some(s=>s&&(s.type||s.platform)&&/twitter|^x$|telegram|discord|website|instagram|tiktok/i.test(s.type||s.platform||''));
-  best[a]={_rank:rank,liq,dexId,live:!!live,name:(p.baseToken&&p.baseToken.name)||'',sym:(p.baseToken&&p.baseToken.symbol)||'',mc:+(p.marketCap||p.fdv||0),ch:+((p.priceChange&&(p.priceChange.m5!=null?p.priceChange.m5:p.priceChange.h1))||0),vol:+((p.volume&&(p.volume.m5!=null?p.volume.m5:(p.volume.h1||0)/12))||0),img:inf.imageUrl||'',url:p.url||'',links:!!(hasSite||hasSoc),x:(xSoc&&xSoc.url)||''}}});return best}
+  best[a]={_rank:rank,liq,dexId,live:!!live,name:(p.baseToken&&p.baseToken.name)||'',sym:(p.baseToken&&p.baseToken.symbol)||'',mc:+(p.marketCap||p.fdv||0),ch:+((p.priceChange&&(p.priceChange.m5!=null?p.priceChange.m5:p.priceChange.h1))||0),vol:+((p.volume&&(p.volume.m5!=null?p.volume.m5:(p.volume.h1||0)/12))||0),img:inf.imageUrl||'',url:p.url||'',links:!!(hasSite||hasSoc),x:(xSoc&&xSoc.url)||'',tg:(tgSoc&&tgSoc.url)||'',web:(webSite&&webSite.url)||''}}});return best}
 async function pollPrices(){if(!livePrices||!items.length)return;const mints=items.map(i=>i.mint);
   for(let i=0;i<mints.length;i+=30){const chunk=mints.slice(i,i+30);
     try{const d=await fetch('https://api.dexscreener.com/latest/dex/tokens/'+chunk.join(',')).then(r=>r.json());const best=pairBest(d);
@@ -1488,6 +1544,13 @@ function mcOf(d){return d?(d.mcUsd||(d.market&&d.market.mc)||0):0}
 // HOT = a genuine runner: real volume + momentum right now (independent of dev reputation)
 function isHotRunner(d){if(!d)return false;if(mcOf(d)>=500000||isRuggedTok(d))return false;return marketBonusOf(d.market||{})>=24}
 function refreshHot(){refreshStats()}
+// paint instant-link icons (X / website / telegram) on a token card once those URLs are known.
+// Idempotent — called from every data path that can learn a URL (DexScreener poll, lookup, pump.fun metadata).
+function renderSocs(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;const el=c.querySelector('[data-socs]');if(!el)return;
+  const norm=u=>{u=''+u;return /^https?:\/\//i.test(u)?u:'https://'+u.replace(/^\/+/,'')};
+  const items=[];if(d.xUrl)items.push(['\ud835\udd4f',norm(d.xUrl),'token X / Twitter']);if(d.webUrl)items.push(['\ud83c\udf10',norm(d.webUrl),'token website']);if(d.tgUrl)items.push(['\u2708',norm(d.tgUrl),'token Telegram']);
+  const html=items.map(([g,u,t])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener" title="'+t+'" onclick="event.stopPropagation()">'+g+'</a>').join('');
+  if(el.innerHTML!==html)el.innerHTML=html}
 function repaintScore(mint){const c=cardByMint.get(mint),d=dataByMint.get(mint);if(!c||!d)return;const ls=liveScore(d);
   const scEl=c.querySelector('[data-sc]');if(scEl)scEl.textContent=ls;
   const seg=c.querySelector('.seg');if(seg){const lit=Math.round(ls/10);[...seg.children].forEach((el,i)=>el.classList.toggle('on',i<lit))}
@@ -1500,6 +1563,8 @@ function updateMarket(mint,m){const c=cardByMint.get(mint),d=dataByMint.get(mint
     if(m.live){const chart=c.querySelector('a.btn.ghost');if(chart)chart.href=m.url}} // point CHART at the live AMM pair, not the bonding curve
   if(m.links)d.dexLinks=true;
   if(m.x)d.xUrl=m.x;
+  if(m.tg)d.tgUrl=m.tg;if(m.web)d.webUrl=m.web;
+  renderSocs(mint);
   const prev=d.mcUsd||0;if(m.mc)d.mcUsd=m.mc;d.market={vol:m.vol||0,ch:m.ch||0,liq:m.liq||0,mc:m.mc||0};d.dexLive=true;
   if(m.mc)d.peakMc=Math.max(d.peakMc||0,m.mc); // peak for crash detection
   if(m.liq)d.peakLiq=Math.max(d.peakLiq||0,m.liq); // peak liquidity for rug detection
@@ -1677,7 +1742,7 @@ $('reportClose').onclick=()=>reportScrim.classList.remove('show');reportScrim.on
 // ===== TOKEN SEARCH + big lookup card =====
 const lookScrim=$('lookScrim');let lookupMint=null,lookPoll=null,searchSeq=0;
 const CA_ONLY=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-function pairToMarket(p){const inf=p.info||{};const xSoc=(inf.socials||[]).find(s=>s&&/^(twitter|x)$/i.test(s.type||s.platform||''));return {vol:+((p.volume&&(p.volume.m5!=null?p.volume.m5:(p.volume.h1||0)/12))||0),ch:+((p.priceChange&&(p.priceChange.m5!=null?p.priceChange.m5:p.priceChange.h1))||0),liq:(p.liquidity&&p.liquidity.usd)||0,mc:+(p.marketCap||p.fdv||0),img:inf.imageUrl||'',url:p.url||'',links:!!((inf.websites&&inf.websites.length)||(inf.socials&&inf.socials.length)),x:(xSoc&&xSoc.url)||'',dexId:p.dexId||''}}
+function pairToMarket(p){const inf=p.info||{};const xSoc=(inf.socials||[]).find(s=>s&&/^(twitter|x)$/i.test(s.type||s.platform||''));const tgSoc=(inf.socials||[]).find(s=>s&&/^telegram$/i.test(s.type||s.platform||''));const webSite=(inf.websites||[]).find(w=>w&&w.url&&!/pump\.fun/i.test(w.url));return {vol:+((p.volume&&(p.volume.m5!=null?p.volume.m5:(p.volume.h1||0)/12))||0),ch:+((p.priceChange&&(p.priceChange.m5!=null?p.priceChange.m5:p.priceChange.h1))||0),liq:(p.liquidity&&p.liquidity.usd)||0,mc:+(p.marketCap||p.fdv||0),img:inf.imageUrl||'',url:p.url||'',links:!!((inf.websites&&inf.websites.length)||(inf.socials&&inf.socials.length)),x:(xSoc&&xSoc.url)||'',tg:(tgSoc&&tgSoc.url)||'',web:(webSite&&webSite.url)||'',dexId:p.dexId||''}}
 function bestPair(pairs){let best=null,br=-1;(pairs||[]).forEach(p=>{if((p.chainId||'')!=='solana')return;const liq=(p.liquidity&&p.liquidity.usd)||0;const dx=(p.dexId||'').toLowerCase();const live=(dx&&!/pumpfun/.test(dx))?1:0;const rank=live*1e15+liq;if(rank>br){br=rank;best=p}});return best}
 async function dexSearch(q){const url=CA_ONLY.test(q)?('https://api.dexscreener.com/latest/dex/tokens/'+q):('https://api.dexscreener.com/latest/dex/search/?q='+encodeURIComponent(q));
   const d=await fetch(url).then(r=>r.ok?r.json():null).catch(()=>null);if(!d||!d.pairs)return [];
@@ -1703,7 +1768,7 @@ async function runSearch(){const q=tokSearch.value.trim();if(q.length<2)return;i
 $('tokGo').onclick=runSearch;
 tokSearch.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch()});
 
-function applyPairToData(d,p){const m=pairToMarket(p);d.market={vol:m.vol,ch:m.ch,liq:m.liq,mc:m.mc};if(m.mc)d.mcUsd=m.mc;d.dexLive=true;if(m.links)d.dexLinks=true;if(m.x)d.xUrl=m.x;d.pairUrl=m.url;d.dexId=m.dexId;d.live=!!((m.dexId||'').toLowerCase()&&!/pumpfun/.test((m.dexId||'').toLowerCase()));
+function applyPairToData(d,p){const m=pairToMarket(p);d.market={vol:m.vol,ch:m.ch,liq:m.liq,mc:m.mc};if(m.mc)d.mcUsd=m.mc;d.dexLive=true;if(m.links)d.dexLinks=true;if(m.x)d.xUrl=m.x;if(m.tg)d.tgUrl=m.tg;if(m.web)d.webUrl=m.web;d.pairUrl=m.url;d.dexId=m.dexId;d.live=!!((m.dexId||'').toLowerCase()&&!/pumpfun/.test((m.dexId||'').toLowerCase()));
   if(m.img&&!d.imgOk)loadImgInto($('lkAv'),[m.img],d)}
 function openLookup(addr,pair){lookupMint=addr;let d=dataByMint.get(addr);const sym=(pair&&pair.baseToken&&pair.baseToken.symbol)||'';const nm=(pair&&pair.baseToken&&pair.baseToken.name)||'';
   if(!d){d={ev:{mint:addr,traderPublicKey:'',symbol:sym,name:nm,uri:''},cat:null,baseScore:0,baseReasons:['looked up via search \u2014 not from a tracked dev, so no dev-reputation points'],market:{vol:0,ch:0,liq:0,mc:0},imgOk:false,devSol:0,safety:null,rug:null,feeShare:null,sym,name:nm,dexLive:false,dexLinks:false,lookup:true};
@@ -1733,6 +1798,52 @@ function renderLookup(){const d=dataByMint.get(lookupMint);if(!d)return;const ls
 $('lkClose').onclick=()=>{lookScrim.classList.remove('show');if(lookPoll){clearInterval(lookPoll);lookPoll=null}lookupMint=null};
 lookScrim.onclick=e=>{if(e.target===lookScrim){lookScrim.classList.remove('show');if(lookPoll){clearInterval(lookPoll);lookPoll=null}lookupMint=null}};
 function refreshLookup(mint){if(lookupMint&&lookupMint===mint&&lookScrim.classList.contains('show'))renderLookup()}
+
+/* ===== TOKEN DETAIL modal: large tile-styled view (info | TV chart | swap), opened by clicking a card ===== */
+const tdScrim=$('tdScrim');let tdMint=null;
+function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=mint;const e=d.ev||{};const dev=e.traderPublicKey||'';
+  const c=cardByMint.get(mint);const tier=(c&&c.dataset.tier)||'trk';
+  // alpha: the exact number on the tile (same rule as KOL OUT), fallback to liveScore
+  const scEl=c&&c.querySelector('[data-sc]');const ls=scEl?(parseInt(scEl.textContent,10)||0):Math.round(liveScore(d));
+  hydrateImg($('tdAv'),e.uri,mint,d.sym||'',d);
+  $('tdTk').innerHTML='$'+esc(d.sym||short(mint))+'<span class="star'+(hasStar(d)?' on':'')+'" id="tdStar" title="ANSOM PROMISE \u2014 creator fees routed to auto-liquidity" style="margin-left:6px">\u2605</span>';
+  $('tdNm').textContent=d.name||short(mint);
+  const sc=$('tdSc');sc.textContent=ls;sc.className='sc sc-'+tier;
+  // dev name + image (pump.fun profile pulled async; avatar patches itself via repaintAvatars)
+  if(dev)queuePumpDev(dev);
+  const pd=pumpDevCache.get(dev);const dnm=(pd&&pd.ok&&pd.username)||(devs[dev]&&devs[dev].label)||(dev?short(dev):'unknown dev');
+  $('tdDev').innerHTML=(dev?devAvatar(dev):'<div class="bav ph">?</div>')+'<div><div class="dnm">'+esc(dnm)+'</div><div class="dwl" title="copy dev wallet">'+(dev?short(dev)+' \u29c9':'\u2014')+'</div></div>';
+  const dw=$('tdDev').querySelector('.dwl');if(dw&&dev)dw.onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(dev)}catch{}};
+  const m=d.market||{};$('tdMc').textContent=mcOf(d)?fmtUsd(mcOf(d)):'$\u2014';
+  const ch=m.ch||0;$('tdCh').textContent=(ch>0?'\u25b2':ch<0?'\u25bc':'')+Math.abs(ch).toFixed(1)+'%';$('tdCh').style.color=ch>0?'var(--up)':ch<0?'var(--down)':'var(--mut)';
+  $('tdVol').textContent=m.vol?fmtK(m.vol):'$\u2014';$('tdLiq').textContent=m.liq?fmtK(m.liq):'$\u2014';
+  $('tdBadges').innerHTML=c?[...c.querySelectorAll('.bdg')].map(b=>b.outerHTML).join(''):'';
+  const s=d.safety||{};const devBuyUsd=(d.devSol||0)*(solUsd||0);const realVol=(m.vol>0)&&(devBuyUsd<=0?m.vol>=2000:m.vol>devBuyUsd*1.5);
+  const rows=[['\u2605 ANSOM PROMISE \u2014 creator fees \u2192 auto-liquidity?',d.feeShare==null?null:!!d.feeShare],
+    ['mint authority revoked?',s.mintRev==null?null:s.mintRev],['freeze authority revoked?',s.freezeRev==null?null:s.freezeRev],
+    ['top holder under 25%?',s.top==null?null:(s.top<=25)],['DexScreener website / community / X link?',d.dexLinks?true:null],
+    ['live DexScreener data in?',d.dexLive?true:null],['real volume beyond dev buy?',m.vol?realVol:null]];
+  $('tdChecks').innerHTML=rows.map(([t,v])=>{const mk=v===null?'<span class="mk unk">?</span>':v?'<span class="mk ok">\u2713</span>':'<span class="mk bad">\u2717</span>';const ex=t.startsWith('top')&&s.top!=null?' ('+s.top+'%)':'';return '<div class="citem">'+mk+'<span>'+t+ex+'</span></div>'}).join('');
+  const mintEl=$('tdMint');mintEl.textContent=mint;mintEl.onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(mint)}catch{}mintEl.style.color='var(--up)';setTimeout(()=>mintEl.style.color='',900)};
+  // TV chart: DexScreener embed resolves the mint to its live pair (bonding curve or AMM)
+  $('tdChart').src='https://dexscreener.com/solana/'+mint+'?embed=1&theme=dark&trades=0&info=0';
+  // swap panel: same executeBuy flow as everywhere else, pool re-checked live
+  $('tdSize').value=settings.amounts&&settings.amounts[0]||0.1;$('tdSlip').value=settings.slippage||10;
+  $('tdQuick').innerHTML=(settings.amounts||[]).map(a=>'<button class="qbtn" data-a="'+a+'">'+a+' SOL</button>').join('');
+  $('tdQuick').querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{$('tdSize').value=b.dataset.a});
+  $('tdPump').href='https://pump.fun/'+mint;$('tdStat').textContent='';
+  $('tdBuy').textContent=wallet?'BUY NOW (approve in wallet)':'CONNECT WALLET TO BUY';
+  $('tdBuy').onclick=async()=>{if(!wallet){await connectWallet();paintWallet();if(!wallet)return;$('tdBuy').textContent='BUY NOW (approve in wallet)'}
+    const migratedNow=!!(d.live||(d.pairUrl&&d.dexId&&!/pumpfun/.test(d.dexId||''))||d.migrated);buyPool=migratedNow?'auto':null;
+    executeBuy(mint,+$('tdSize').value,+$('tdSlip').value,$('tdStat'))};
+  // socials: same instant links as the tile
+  const norm=u=>{u=''+u;return /^https?:\/\//i.test(u)?u:'https://'+u.replace(/^\/+/,'')};
+  const socs=[];if(d.xUrl)socs.push(['\ud835\udd4f',norm(d.xUrl),'token X / Twitter']);if(d.webUrl)socs.push(['\ud83c\udf10',norm(d.webUrl),'token website']);if(d.tgUrl)socs.push(['\u2708',norm(d.tgUrl),'token Telegram']);
+  $('tdSocs').innerHTML=socs.map(([g,u,t])=>'<a class="btn ghost sm" href="'+esc(u)+'" target="_blank" rel="noopener" title="'+t+'">'+g+'</a>').join('');
+  tdScrim.classList.add('show')}
+function closeTokenDetail(){tdScrim.classList.remove('show');$('tdChart').src='about:blank';tdMint=null}
+$('tdClose').onclick=closeTokenDetail;
+tdScrim.onclick=e=>{if(e.target===tdScrim)closeTokenDetail()};
 
 // ===== ANSEM takeover =====
 const tkScrim=$('tkScrim');
