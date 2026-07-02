@@ -267,12 +267,13 @@
   .td-chart{position:relative;background:#02040a;min-width:0}
   .td-chart iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
   .td-right{padding:18px;border-left:1px solid var(--edge2);min-width:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
-  .td-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;margin-bottom:6px}
-  .td-head .bav{width:176px;height:176px;font-size:52px}
-  .td-head .btk{font-size:24px}
-  .td-head .td-alpha{display:flex;align-items:baseline;gap:8px}
-  .td-head .td-alpha .lbl{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut)}
-  .td-head .td-alpha .sc{font-family:var(--hud);font-weight:800;font-size:34px}
+  .td-head{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+  .td-head .bav{width:100%;height:240px;font-size:52px}
+  .td-title{display:flex;align-items:baseline;justify-content:space-between;width:100%}
+  .td-title .btk{font-size:24px}
+  .td-title .td-alpha{display:flex;align-items:baseline;gap:8px}
+  .td-title .td-alpha .lbl{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut)}
+  .td-title .td-alpha .sc{font-family:var(--hud);font-weight:800;font-size:34px}
   #tdSocs .socs{justify-content:center}
   #tdSocs .socs a{font-size:16px;padding:8px 12px}
   #tdSocs .socs a svg{width:16px;height:16px}
@@ -698,8 +699,7 @@
     <div class="td-left bigcard">
       <div class="td-head">
         <div class="bav" id="tdAv"></div>
-        <div class="btk" id="tdTk"></div><div class="bnm" id="tdNm"></div>
-        <div class="td-alpha"><span class="lbl">ALPHA</span><span class="sc" id="tdSc"></span></div>
+        <div class="td-title"><span class="btk" id="tdTk"></span><span class="td-alpha"><span class="lbl">ALPHA</span><span class="sc" id="tdSc"></span></span></div>
       </div>
       <div class="td-devrow" id="tdDev"></div>
       <div class="td-mc"><div class="lbl">MARKET CAP</div><div class="num"><span id="tdMc">$&hellip;</span><span class="delta" id="tdCh"></span></div></div>
@@ -1868,7 +1868,6 @@ function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=
   const scEl=c&&c.querySelector('[data-sc]');const ls=scEl?(parseInt(scEl.textContent,10)||0):Math.round(liveScore(d));
   hydrateImg($('tdAv'),e.uri,mint,d.sym||'',d);
   $('tdTk').innerHTML='$'+esc(d.sym||short(mint))+'<span class="star'+(hasStar(d)?' on':'')+'" title="ANSOM PROMISE \u2014 creator fees routed to auto-liquidity" style="margin-left:6px">\u2605</span>';
-  $('tdNm').textContent=d.name||short(mint);
   const sc=$('tdSc');sc.textContent=ls;sc.className='sc sc-'+tier;
   // dev name + image + rank (pump.fun profile pulled async; avatar patches itself via repaintAvatars)
   if(dev)queuePumpDev(dev);
