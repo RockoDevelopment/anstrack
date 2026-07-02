@@ -1792,7 +1792,7 @@ async function ansRenderCard(cv,o){
   if(o.sub){x.fillStyle='#bee9ff';x.font='800 40px Orbitron';x.fillText(o.sub,RX,(o.heroY||512)+54);}
   if(o.caller){x.fillStyle='#fff';x.font='800 52px Orbitron';x.fillText(o.caller,RX,592);}
   if(o.line2){x.fillStyle='#96b4cd';x.font='600 34px Orbitron';x.fillText(o.line2,RX,o.line2Y||650);}
-  x.textAlign='center';x.fillStyle='#7aa0bb';x.font='600 22px Orbitron';x.fillText('@anstrackalpha  \u00b7  x.com/anstrackalpha  \u00b7  t.me/anstrackalpha',1012,716);
+  x.textAlign='center';x.fillStyle='#7aa0bb';x.font='600 22px Orbitron';x.fillText('@anstrackalpha  ·  x.com/anstrackalpha',1012,716);
   x.strokeStyle='#00e5ff';x.lineWidth=3;ansRR(x,16,16,W-32,H-32,30);x.shadowColor='rgba(0,229,255,.5)';x.shadowBlur=10;x.stroke();x.shadowBlur=0;
 }
 function ansDownload(cv,name){cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);},'image/png');}
