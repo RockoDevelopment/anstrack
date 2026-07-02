@@ -448,11 +448,7 @@
   .toast .tw{clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));background:linear-gradient(180deg,#0c1322,#070d18);padding:11px 12px;display:flex;gap:11px;align-items:center;min-width:270px}
   .toast .ic{font-family:var(--hud);font-weight:800;font-size:17px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:#02040a;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px))}
   .toast .ic.av{padding:0;background:none;width:38px;height:38px;overflow:hidden}.toast .ic.av .bav,.toast .ic.av img{width:38px;height:38px;border:none;clip-path:none}
-  .balrow{font-family:var(--mono);font-size:12px;color:var(--mut);margin:14px 0 6px}
-  .balca{font-family:var(--mono);font-size:13px;color:var(--gold);background:#02040a;border:1px solid var(--edge2);padding:10px 12px;cursor:pointer;word-break:break-all}.balca:hover{border-color:var(--gold)}.balca.copied,.dmw.copied{color:var(--up)}
-  .balbtns{display:flex;gap:8px;margin-top:12px}
-  .balbtns button{flex:1;font-family:var(--hud);font-weight:800;font-size:13px;letter-spacing:.5px;padding:11px;cursor:pointer;border:none;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
-  .balbuy{background:var(--up);color:#02040a}.balcopy{background:var(--edge2);color:var(--ink)}.balbtns button:hover{filter:brightness(1.12)}
+  .dmw.copied{color:var(--up)}
   .toast.buy .ic{background:var(--lime)} .toast.recv .ic{background:var(--cyan)}
   .toast .body{flex:1;min-width:0;cursor:default}
   .toast .th{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--mut)}
@@ -611,13 +607,6 @@
   <h2>DEV PROFILE <span class="tag" style="background:var(--gold);color:#02040a">ANSTRACK STATS</span></h2>
   <div id="dmBody"></div>
   <div class="mrow"><button class="btn ghost" id="dmClose">CLOSE</button></div>
-</div></div></div>
-
-<!-- BUY ALERT INFO -->
-<div class="scrim" id="balScrim"><div class="modal"><div class="mi">
-  <h2>DEV BUY <span class="tag" style="background:var(--up);color:#02040a">TRACKED</span></h2>
-  <div id="balBody"></div>
-  <div class="mrow"><button class="btn ghost" id="balClose">CLOSE</button></div>
 </div></div></div>
 
 <!-- CREATE WALLET -->
@@ -1192,7 +1181,7 @@ async function hydrateImg(el,uri,mint,sym,data){el.style.backgroundImage=gradFor
   let meta=null;
   for(const c of ipfsCands(uri)){try{const r=await fetch(c,{cache:'force-cache'});if(r.ok){meta=await r.json();if(meta)break}}catch{}}
   if(!meta)return;
-  if(data){const ex=meta.extensions||{};const soc=[meta.website,meta.twitter,meta.x,meta.telegram,ex.website,ex.twitter,ex.telegram].some(v=>v&&(''+v).length>3);data.socials=!!soc;renderRisk(mint)}
+  if(data){const ex=meta.extensions||{};const xRaw=meta.twitter||meta.x||ex.twitter||ex.x;const soc=[meta.website,meta.twitter,meta.x,meta.telegram,ex.website,ex.twitter,ex.telegram].some(v=>v&&(''+v).length>3);data.socials=!!soc;if(xRaw)data.xUrl=xRaw;renderRisk(mint)}
   if(meta.image){const ic=ipfsCands(meta.image);if(data)data.imgCands=cands.concat(ic);if(!data||!data.imgOk)loadImgInto(el,ic,data)}}
 // keep retrying images that haven't landed yet (new tokens get indexed a minute or two after launch) — an image must NEVER stay blank
 setInterval(()=>{for(const it of items){const d=dataByMint.get(it.mint);if(!d||d.imgOk)continue;const card=cardByMint.get(it.mint);if(!card)continue;const av=card.querySelector('[data-av]');if(!av)continue;
@@ -1311,6 +1300,9 @@ function bannedSlur(name,sym){
   return chk(name)||chk(sym)}
 const reportedRacist=new Set();
 let racistReports=(function(){try{return JSON.parse(localStorage.getItem('ans_racist_reports')||'[]')}catch{return []}})();
+// seed the dedupe set from persisted reports — the Set alone is in-memory only, so without this every
+// page reload (and every websocket replay of the same create event) re-toasted already-blocked mints
+racistReports.forEach(r=>{if(r&&r.mint)reportedRacist.add(r.mint)});
 // purge stale entries saved by older/broader lists (e.g. BLACK, BROOO) that no longer match the current block list
 racistReports=racistReports.filter(r=>r&&bannedSlur(r.name,r.sym));try{localStorage.setItem('ans_racist_reports',JSON.stringify(racistReports))}catch{}
 // one-time hard reset: clear ALL previously-stored blocks (older builds false-flagged innocent tickers); fresh blocks rebuild from the current exact list
@@ -1334,7 +1326,7 @@ function reportRacist(m,slur){if(!m||!m.mint||reportedRacist.has(m.mint))return;
   try{localStorage.setItem('ans_racist_reports',JSON.stringify(racistReports))}catch{}
   const badge=$('banCount');if(badge){badge.textContent=racistReports.length;badge.style.display=''}
   const pd=pumpDevCache.get(dev);const devName=(pd&&pd.ok&&pd.username)||(devs[dev]&&devs[dev].label&&devs[dev].label!==short(dev)?devs[dev].label:'Unknown dev');
-  toast('dead','\u26d4 UNAUTHORIZED TICKER BLOCKED',(m.name||'(unnamed)')+' \u00b7 $'+(m.symbol||'?'),null,()=>openBanReport(rep),dev?devAvatar(dev):null)}
+  toast('dead','\u26d4 UNAUTHORIZED TICKER BLOCKED',(m.name||'(unnamed)')+' \u00b7 $'+(m.symbol||'?'),null,()=>openBanReport(rep),dev?devAvatar(dev):null,30000)}
 
 function addLaunch(e,opts){opts=opts||{};
   if(bannedSlur(e.name,e.symbol))return null; // hate-speech token: never reaches the grid
@@ -1377,7 +1369,7 @@ function addLaunch(e,opts){opts=opts||{};
   card.querySelector('.dv').onclick=()=>{if(dev)navigator.clipboard?.writeText(dev)};
   card.querySelector('.act-why').onclick=()=>openWhy(e.mint);
   const rb=card.querySelector('.act-report');if(rb)rb.onclick=()=>openReport(dev,sym);
-  card.querySelector('.act-buy').onclick=()=>openBuy(e,alpha,tier==='grad'||opts.mig?'auto':null);
+  card.querySelector('.act-buy').onclick=()=>{const dd=dataByMint.get(e.mint)||{};const migratedNow=!!(dd.live||(dd.pairUrl&&dd.dexId&&!/pumpfun/.test(dd.dexId||''))||card.dataset.tier==='grad');openBuy(e,alpha,migratedNow?'auto':null)};
   {const kb=card.querySelector('.act-kol');if(kb)kb.onclick=()=>openKolCard(e.mint);}
   $('cards').insertBefore(card,$('cards').firstChild);
   items.unshift({el:card,mint:e.mint,tier,tracked:trackedFlag,winner:winnerFlag,mig:!!opts.mig,hot:!!opts.hot});
@@ -1419,8 +1411,9 @@ function pairBest(d){const best={};(d.pairs||[]).forEach(p=>{const a=p.baseToken
   const rank=live*1e15+liq;
   if(!best[a]||rank>best[a]._rank){const inf=p.info||{};
   const hasSite=(inf.websites||[]).some(w=>w&&w.url&&!/pump\.fun/i.test(w.url));
+  const xSoc=(inf.socials||[]).find(s=>s&&/^(twitter|x)$/i.test(s.type||s.platform||''));
   const hasSoc=(inf.socials||[]).some(s=>s&&(s.type||s.platform)&&/twitter|^x$|telegram|discord|website|instagram|tiktok/i.test(s.type||s.platform||''));
-  best[a]={_rank:rank,liq,dexId,live:!!live,name:(p.baseToken&&p.baseToken.name)||'',sym:(p.baseToken&&p.baseToken.symbol)||'',mc:+(p.marketCap||p.fdv||0),ch:+((p.priceChange&&(p.priceChange.m5!=null?p.priceChange.m5:p.priceChange.h1))||0),vol:+((p.volume&&(p.volume.m5!=null?p.volume.m5:(p.volume.h1||0)/12))||0),img:inf.imageUrl||'',url:p.url||'',links:!!(hasSite||hasSoc)}}});return best}
+  best[a]={_rank:rank,liq,dexId,live:!!live,name:(p.baseToken&&p.baseToken.name)||'',sym:(p.baseToken&&p.baseToken.symbol)||'',mc:+(p.marketCap||p.fdv||0),ch:+((p.priceChange&&(p.priceChange.m5!=null?p.priceChange.m5:p.priceChange.h1))||0),vol:+((p.volume&&(p.volume.m5!=null?p.volume.m5:(p.volume.h1||0)/12))||0),img:inf.imageUrl||'',url:p.url||'',links:!!(hasSite||hasSoc),x:(xSoc&&xSoc.url)||''}}});return best}
 async function pollPrices(){if(!livePrices||!items.length)return;const mints=items.map(i=>i.mint);
   for(let i=0;i<mints.length;i+=30){const chunk=mints.slice(i,i+30);
     try{const d=await fetch('https://api.dexscreener.com/latest/dex/tokens/'+chunk.join(',')).then(r=>r.json());const best=pairBest(d);
@@ -1506,6 +1499,7 @@ function updateMarket(mint,m){const c=cardByMint.get(mint),d=dataByMint.get(mint
   if(m.url){d.pairUrl=m.url;d.dexId=m.dexId;d.live=!!m.live;
     if(m.live){const chart=c.querySelector('a.btn.ghost');if(chart)chart.href=m.url}} // point CHART at the live AMM pair, not the bonding curve
   if(m.links)d.dexLinks=true;
+  if(m.x)d.xUrl=m.x;
   const prev=d.mcUsd||0;if(m.mc)d.mcUsd=m.mc;d.market={vol:m.vol||0,ch:m.ch||0,liq:m.liq||0,mc:m.mc||0};d.dexLive=true;
   if(m.mc)d.peakMc=Math.max(d.peakMc||0,m.mc); // peak for crash detection
   if(m.liq)d.peakLiq=Math.max(d.peakLiq||0,m.liq); // peak liquidity for rug detection
@@ -1683,7 +1677,7 @@ $('reportClose').onclick=()=>reportScrim.classList.remove('show');reportScrim.on
 // ===== TOKEN SEARCH + big lookup card =====
 const lookScrim=$('lookScrim');let lookupMint=null,lookPoll=null,searchSeq=0;
 const CA_ONLY=/^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-function pairToMarket(p){const inf=p.info||{};return {vol:+((p.volume&&(p.volume.m5!=null?p.volume.m5:(p.volume.h1||0)/12))||0),ch:+((p.priceChange&&(p.priceChange.m5!=null?p.priceChange.m5:p.priceChange.h1))||0),liq:(p.liquidity&&p.liquidity.usd)||0,mc:+(p.marketCap||p.fdv||0),img:inf.imageUrl||'',url:p.url||'',links:!!((inf.websites&&inf.websites.length)||(inf.socials&&inf.socials.length)),dexId:p.dexId||''}}
+function pairToMarket(p){const inf=p.info||{};const xSoc=(inf.socials||[]).find(s=>s&&/^(twitter|x)$/i.test(s.type||s.platform||''));return {vol:+((p.volume&&(p.volume.m5!=null?p.volume.m5:(p.volume.h1||0)/12))||0),ch:+((p.priceChange&&(p.priceChange.m5!=null?p.priceChange.m5:p.priceChange.h1))||0),liq:(p.liquidity&&p.liquidity.usd)||0,mc:+(p.marketCap||p.fdv||0),img:inf.imageUrl||'',url:p.url||'',links:!!((inf.websites&&inf.websites.length)||(inf.socials&&inf.socials.length)),x:(xSoc&&xSoc.url)||'',dexId:p.dexId||''}}
 function bestPair(pairs){let best=null,br=-1;(pairs||[]).forEach(p=>{if((p.chainId||'')!=='solana')return;const liq=(p.liquidity&&p.liquidity.usd)||0;const dx=(p.dexId||'').toLowerCase();const live=(dx&&!/pumpfun/.test(dx))?1:0;const rank=live*1e15+liq;if(rank>br){br=rank;best=p}});return best}
 async function dexSearch(q){const url=CA_ONLY.test(q)?('https://api.dexscreener.com/latest/dex/tokens/'+q):('https://api.dexscreener.com/latest/dex/search/?q='+encodeURIComponent(q));
   const d=await fetch(url).then(r=>r.ok?r.json():null).catch(()=>null);if(!d||!d.pairs)return [];
@@ -1709,7 +1703,7 @@ async function runSearch(){const q=tokSearch.value.trim();if(q.length<2)return;i
 $('tokGo').onclick=runSearch;
 tokSearch.addEventListener('keydown',e=>{if(e.key==='Enter')runSearch()});
 
-function applyPairToData(d,p){const m=pairToMarket(p);d.market={vol:m.vol,ch:m.ch,liq:m.liq,mc:m.mc};if(m.mc)d.mcUsd=m.mc;d.dexLive=true;if(m.links)d.dexLinks=true;d.pairUrl=m.url;d.dexId=m.dexId;d.live=!!((m.dexId||'').toLowerCase()&&!/pumpfun/.test((m.dexId||'').toLowerCase()));
+function applyPairToData(d,p){const m=pairToMarket(p);d.market={vol:m.vol,ch:m.ch,liq:m.liq,mc:m.mc};if(m.mc)d.mcUsd=m.mc;d.dexLive=true;if(m.links)d.dexLinks=true;if(m.x)d.xUrl=m.x;d.pairUrl=m.url;d.dexId=m.dexId;d.live=!!((m.dexId||'').toLowerCase()&&!/pumpfun/.test((m.dexId||'').toLowerCase()));
   if(m.img&&!d.imgOk)loadImgInto($('lkAv'),[m.img],d)}
 function openLookup(addr,pair){lookupMint=addr;let d=dataByMint.get(addr);const sym=(pair&&pair.baseToken&&pair.baseToken.symbol)||'';const nm=(pair&&pair.baseToken&&pair.baseToken.name)||'';
   if(!d){d={ev:{mint:addr,traderPublicKey:'',symbol:sym,name:nm,uri:''},cat:null,baseScore:0,baseReasons:['looked up via search \u2014 not from a tracked dev, so no dev-reputation points'],market:{vol:0,ch:0,liq:0,mc:0},imgOk:false,devSol:0,safety:null,rug:null,feeShare:null,sym,name:nm,dexLive:false,dexLinks:false,lookup:true};
@@ -1797,24 +1791,27 @@ async function ansRenderCard(cv,o){
 }
 function ansDownload(cv,name){cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);},'image/png');}
 let _cardName='anstrack.png';
+// pulls a clean @handle out of a stored x.com/twitter.com URL; '' if we don't have one for this token
+function xHandleOf(url){if(!url)return '';const m=(''+url).match(/(?:twitter\.com|x\.com)\/(?!i\/|home|search|hashtag)([A-Za-z0-9_]{1,15})/i);return m?('@'+m[1]):''}
 async function openKolCard(mint){const d=dataByMint.get(mint);if(!d)return;const e=d.ev||{};const dev=e.traderPublicKey||'';
-  const sym=(''+(d.sym||e.symbol||short(mint)||'token')).toUpperCase();const mc=mcOf(d);
+  const sym=(''+(d.sym||e.symbol||short(mint)||'token')).toUpperCase();const mc=mcOf(d);const xh=xHandleOf(d.xUrl);
   const cardEl=cardByMint.get(mint);const scEl=cardEl&&cardEl.querySelector('[data-sc]');
   const score=scEl?(parseInt(scEl.textContent,10)||0):Math.round(liveScore(d)); // always the exact number shown on the token card, not a recomputed one
   const rep=devRep(dev);const tag=rep&&rep.tier==='ansem'?'ANSEM PICK':rep&&(rep.tier==='winner'||rep.tier==='proven'||rep.tier==='elite')?'REPEAT GRAD DEV':'CAUGHT LIVE';
   $('cardTitle').innerHTML='\ud83d\udce2 KOL OUT';$('cardNote').textContent='Your ANSTRACK call card \u2014 save it or post to X with the call prefilled.';
   await ansRenderCard($('ansCard'),{sym,eyebrow:'called at '+(mc?fmtK(mc):'?'),hero:String(score||0),heroSize:196,heroY:506,heroFill:'#00e5ff',heroGlow:'rgba(0,180,255,.7)',sub:'/100  ALPHA SCORE',line2:tag+'  \u00b7  @anstrackalpha',line2Y:628});
   _cardName='anstrack_'+sym+'_kol.png';
-  $('cardMsg').value='\ud83d\udce2 $'+sym+' \u2014 caught live on @AnsTrackAlpha \nalpha score '+score+'/100 \u00b7 called at '+(mc?fmtK(mc):'?')+'\nCA: '+mint+'\nNFA \u00b7 @AnsTrackAlpha terminal';
+  $('cardMsg').value='\ud83d\udce2 $'+sym+(xh?' '+xh:'')+' caught live on @AnsTrackAlpha\nalpha score '+score+'/100 \u00b7 called at '+(mc?fmtK(mc):'?')+'\nCA: '+mint+'\nNFA \u00b7 @AnsTrackAlpha terminal';
   $('cardScrim').classList.add('show');
 }
 function fmtDur(ms){const s=Math.floor(ms/1000);if(s<60)return s+'s';const m=Math.floor(s/60);if(m<60)return m+'m, '+(s%60)+'s';const h=Math.floor(m/60);return h+'h, '+(m%60)+'m';}
 async function openPnlCard(pos,exitMc){const sym=(''+(pos.sym||'token')).toUpperCase();const mult=pos.entryMc?exitMc/pos.entryMc:0;
+  const d=dataByMint.get(pos.mint);const xh=xHandleOf(d&&d.xUrl);
   const ms=mult>=10?mult.toFixed(0)+'X':mult.toFixed(1)+'X';const pct=Math.round((mult-1)*100);const held=fmtDur(Date.now()-(pos.ts||Date.now()));const peak=Math.max(exitMc||0,pos.peakMc||0,pos.entryMc||0);const up=mult>=1;
   $('cardTitle').innerHTML='\ud83d\udcb0 PnL CARD';$('cardNote').textContent='Your result card \u2014 save it or post your gain to X.';
   await ansRenderCard($('ansCard'),{sym,eyebrow:'caught live at '+fmtK(pos.entryMc||0),hero:ms,heroSize:186,heroY:512,heroFill:up?'#22e06a':'#ff3b6b',heroGlow:up?'rgba(0,255,120,.7)':'rgba(255,59,107,.6)',caller:'@anstrackalpha',line2:held+'  \u00b7  peak '+fmtK(peak),line2Y:650});
   _cardName='anstrack_'+sym+'_pnl.png';
-  $('cardMsg').value='\ud83d\udcb0 $'+sym+' '+ms+' ('+(pct>=0?'+':'')+pct+'%) \u2014 caught live on @AnsTrackAlpha\ncalled at '+fmtK(pos.entryMc||0)+' \u00b7 '+held+'\nNFA \u00b7 @AnsTrackAlpha terminal';
+  $('cardMsg').value='\ud83d\udcb0 $'+sym+(xh?' '+xh:'')+' '+ms+' ('+(pct>=0?'+':'')+pct+'%) caught live on @AnsTrackAlpha\ncalled at '+fmtK(pos.entryMc||0)+' \u00b7 '+held+'\nNFA \u00b7 @AnsTrackAlpha terminal';
   $('cardScrim').classList.add('show');
 }
 if($('cardSave'))$('cardSave').onclick=()=>ansDownload($('ansCard'),_cardName);
@@ -1857,7 +1854,7 @@ seedAnsem();
 
 // ===== floating alerts (bottom-left, newest at bottom, persist until dismissed) =====
 const fmtTok=n=>n>=1e9?(n/1e9).toFixed(2)+'B':n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':(+n).toFixed(2);
-function toast(kind,title,text,mint,onClick,avatar){const wrap=$('toasts');const t=document.createElement('div');t.className='toast '+kind;
+function toast(kind,title,text,mint,onClick,avatar,ttlMs){const wrap=$('toasts');const t=document.createElement('div');t.className='toast '+kind;
   const ic=avatar?'<div class="ic av">'+avatar+'</div>':'<div class="ic">'+(kind==='buy'?'$':'\u21e3')+'</div>';
   t.innerHTML='<div class="tw">'+ic+'<div class="body"><div class="th">'+title+'</div><div class="tb">'+esc(text)+'</div></div><div class="x">\u00d7</div></div>';
   t.querySelector('.x').onclick=()=>t.remove();
@@ -1865,6 +1862,7 @@ function toast(kind,title,text,mint,onClick,avatar){const wrap=$('toasts');const
   else if(mint){const b=t.querySelector('.body');b.style.cursor='pointer';b.onclick=()=>window.open('https://pump.fun/'+mint,'_blank')}
   wrap.insertBefore(t,wrap.firstChild);
   while(wrap.children.length>8)wrap.lastChild.remove();
+  if(ttlMs>0)setTimeout(()=>t.remove(),ttlMs); // auto-dismiss after ttl; clicking the toast body still works while visible
   ping(true)}
 // blocked-racist-token reports
 const banScrim=$('banScrim');
@@ -1897,21 +1895,9 @@ async function classifyTx(wallet,sig){let tx=null;try{tx=await rpc('getTransacti
   const dv=devs[wallet]||{};const isAns=dv.kind==='ansem';const pd=pumpDevCache.get(wallet);const who=(pd&&pd.ok&&pd.username)||dv.label||short(wallet);
   if(isSigner&&up&&solDelta<-0.0005){const sym=(dataByMint.get(upMint)&&dataByMint.get(upMint).sym)||'';
     queuePumpDev&&queuePumpDev(wallet);
-    toast('buy',(isAns?'\u26a1 ':'')+esc(who)+' BOUGHT',fmtTok(up)+' '+(sym?'$'+sym:short(upMint)),upMint,()=>openBuyAlert(wallet,upMint,sym,up),devAvatar(wallet));return}
+    toast('buy',(isAns?'\u26a1 ':'')+esc(who)+' BOUGHT',fmtTok(up)+' '+(sym?'$'+sym:short(upMint)),upMint,()=>openLookup(upMint),devAvatar(wallet),300000);return}
   // (incoming/received-transfer alerts removed — only buys of followed devs are surfaced)
   }
-function openBuyAlert(wallet,mint,sym,amt){const dv=devs[wallet]||{};const pd=pumpDevCache.get(wallet);
-  const nm=(pd&&pd.ok&&pd.username)||(dv.label&&dv.label!==short(wallet)?dv.label:'Tracked Dev');
-  $('balBody').innerHTML='<div class="dmhd">'+devAvatar(wallet)+'<div><div class="nm">'+esc(nm)+'</div><div class="dmw" data-cw="'+wallet+'" title="press to copy wallet">'+short(wallet)+' \u29c9</div></div></div>'+
-    '<div class="balrow">bought <b style="color:var(--ink)">'+fmtTok(amt)+'</b> of</div>'+
-    '<div class="balca" data-cw="'+mint+'" title="press to copy contract">'+(sym?'$'+esc(sym)+' \u00b7 ':'')+esc(mint)+' \u29c9</div>'+
-    '<div class="balbtns"><button class="balbuy" id="balBuy">BUY THIS TOKEN</button><button class="balcopy" id="balCopyCa">COPY CA</button></div>';
-  $('balBody').querySelectorAll('[data-cw]').forEach(x=>x.onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(x.dataset.cw)}catch{}x.classList.add('copied');setTimeout(()=>x.classList.remove('copied'),900)});
-  $('balBuy').onclick=()=>{balScrim.classList.remove('show');openBuy({mint:mint,name:'',symbol:sym||''},liveScore(dataByMint.get(mint))||0,'auto')};
-  $('balCopyCa').onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(mint)}catch{}$('balCopyCa').textContent='COPIED \u2713';setTimeout(()=>$('balCopyCa').textContent='COPY CA',1200)};
-  balScrim.classList.add('show')}
-const balScrim=$('balScrim');
-$('balClose').onclick=()=>balScrim.classList.remove('show');balScrim.onclick=e=>{if(e.target===balScrim)balScrim.classList.remove('show')};
 setInterval(watchWallets,12000);setTimeout(watchWallets,4500);
 
 // ===== websocket (free: new tokens + migrations only) =====
@@ -1919,8 +1905,8 @@ let ws,retry=0;
 function connect(){$('connTxt').textContent='CONNECTING';$('ldot').className='ldot';try{ws=new WebSocket('wss://pumpportal.fun/api/data')}catch{return sched()}
   ws.onopen=()=>{retry=0;$('ldot').className='ldot on';$('connTxt').textContent='ONLINE';ws.send(JSON.stringify({method:'subscribeNewToken'}));ws.send(JSON.stringify({method:'subscribeMigration'}))};
   ws.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch{return}
-    if(m.txType==='create'||m.bondingCurveKey){const slur=bannedSlur(m.name,m.symbol);if(slur){reportRacist(m,slur);return}recordLaunch(m);addLaunch(m)}
-    else if(m.txType==='migrate'||m.pool==='migration'||m.event==='migration')markMigrated(m)};
+    if(m.txType==='migrate'||m.pool==='migration'||m.event==='migration')markMigrated(m); // MUST be checked first: migration payloads can also carry bondingCurveKey, which used to misroute them into the create branch and starve the repeat-grad winner list
+    else if(m.txType==='create'||m.bondingCurveKey){const slur=bannedSlur(m.name,m.symbol);if(slur){reportRacist(m,slur);return}recordLaunch(m);addLaunch(m)}};
   ws.onclose=()=>{$('ldot').className='ldot off';$('connTxt').textContent='OFFLINE';sched()};
   ws.onerror=()=>{try{ws.close()}catch{}}}
 function sched(){retry=Math.min(retry+1,6);const w=Math.min(1000*2**retry,30000);$('connTxt').textContent='RETRY '+Math.round(w/1000)+'s';setTimeout(connect,w)}
