@@ -26,6 +26,7 @@ import sys
 import threading
 import time
 import urllib.request
+import urllib.error
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from datetime import datetime
 from pathlib import Path
@@ -696,6 +697,25 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(404, json.dumps({"error": "not found"}))
 
     def do_POST(self):
+        if self.path.startswith("/api/trade"):
+            # Proxy to PumpPortal trade-local: builds an UNSIGNED transaction for the user's own
+            # wallet to sign in Phantom. The client tries this same-origin route first and only
+            # falls back to hitting pumpportal.fun directly (which can be CORS-blocked) if absent.
+            # Nothing is signed or sent here — raw serialized tx bytes are returned as-is.
+            try:
+                n = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(n) if n else b"{}"
+                req = urllib.request.Request(
+                    "https://pumpportal.fun/api/trade-local", data=body,
+                    headers={"Content-Type": "application/json"}, method="POST")
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    return self._send(200, r.read(), "application/octet-stream")
+            except urllib.error.HTTPError as e:
+                try: detail = e.read().decode("utf-8", "replace")[:500]
+                except Exception: detail = ""
+                return self._send(e.code, json.dumps({"error": f"pumpportal {e.code}", "detail": detail}))
+            except Exception as e:
+                return self._send(502, json.dumps({"error": f"trade proxy failed: {e}"}))
         if self.path.startswith("/api/event"):
             # append a market-snapshot (or any) event — lets the client feed the time-series in
             try:
