@@ -266,7 +266,8 @@
   .td-left{padding:18px;border-right:1px solid var(--edge2);overflow-y:auto;min-width:0}
   .td-chart{position:relative;background:#02040a;min-width:0}
   .td-chart iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-  .td-right{padding:18px;border-left:1px solid var(--edge2);overflow-y:auto;min-width:0}
+  .td-right{padding:18px;border-left:1px solid var(--edge2);min-width:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+  .td-left .bchead .bav{width:88px;height:88px;font-size:30px}
   .td-x{position:absolute;top:8px;right:12px;z-index:2;font-family:var(--hud);font-weight:800;font-size:18px;color:var(--mut);background:none;border:none;cursor:pointer;padding:4px 8px}
   .td-x:hover{color:var(--ink)}
   .td-devrow{display:flex;gap:10px;align-items:center;margin:12px 0;padding:10px;border:1px solid var(--edge2);background:rgba(0,0,0,.25)}
@@ -699,34 +700,35 @@
         <div class="tds"><div class="lbl">LIQUIDITY</div><div class="v" id="tdLiq">&mdash;</div></div>
         <div class="tds"><div class="lbl">DEV BUY</div><div class="v" id="tdDevBuy">&mdash;</div></div>
         <div class="tds"><div class="lbl">LP LOCK</div><div class="v" id="tdLock">&mdash;</div></div>
+        <div class="tds"><div class="lbl">TOP HOLDER</div><div class="v" id="tdTop">&mdash;</div></div>
+        <div class="tds"><div class="lbl">PEAK MC</div><div class="v" id="tdPeak">&mdash;</div></div>
+        <div class="tds"><div class="lbl">DEV WINS</div><div class="v" id="tdDevWins">&mdash;</div></div>
+        <div class="tds"><div class="lbl">DEV SCORE</div><div class="v" id="tdDevScore">&mdash;</div></div>
       </div>
       <div class="badges" id="tdBadges"></div>
-      <div class="sectit">VERIFY BEFORE YOU SIGN &mdash; on-chain</div>
-      <div class="bchecks" id="tdChecks"></div>
-      <div class="kv"><span>mint</span><b id="tdMint" style="font-size:10px;word-break:break-all;text-align:right;cursor:pointer" title="copy CA">&mdash;</b></div>
+      <div id="tdSocs" style="margin-top:12px"></div>
     </div>
     <div class="td-chart"><iframe id="tdChart" title="chart" allow="clipboard-write"></iframe></div>
     <div class="td-right">
-      <div class="sectit">SWAP</div>
       <div class="swapcard">
         <div class="swleg">
-          <div class="swleg-h"><span>You pay</span></div>
-          <div class="swleg-b"><input id="tdAmt" type="number" min="0" step="0.01" placeholder="0.0"/><button type="button" class="swchip"><span class="swchip-ic sol">&#9678;</span><span>SOL</span></button></div>
+          <div class="swleg-h"><span id="tdPayLbl">You pay</span></div>
+          <div class="swleg-b"><input id="tdAmt" type="number" min="0" step="0.01" placeholder="0.0"/><button type="button" class="swchip" id="tdChipFrom"><span class="swchip-ic sol" id="tdFromIc">&#9678;</span><span id="tdFromSym">SOL</span></button></div>
         </div>
+        <div class="swflipwrap"><button type="button" class="swflip" id="tdFlip" title="switch to sell">&#8645;</button></div>
         <div class="swleg to">
-          <div class="swleg-h"><span>You receive (est.)</span></div>
-          <div class="swleg-b"><div class="swout" id="tdOut">0.0</div><button type="button" class="swchip" id="tdChipTo"><span class="swchip-ic q" id="tdChipIc">?</span><span id="tdChipSym">TOKEN</span></button></div>
+          <div class="swleg-h"><span id="tdRecvLbl">You receive (est.)</span></div>
+          <div class="swleg-b"><div class="swout" id="tdOut">0.0</div><button type="button" class="swchip" id="tdChipTo"><span class="swchip-ic q" id="tdToIc">?</span><span id="tdToSym">TOKEN</span></button></div>
         </div>
         <div class="swmeta" id="tdMeta"></div>
         <div class="quick" id="tdQuick" style="margin-top:10px"></div>
         <div class="swset">
           <div class="swsetf"><span>Slippage</span><input id="tdSlip" type="number" min="0" step="1" value="10"/><span>%</span></div>
+          <div class="swsetf wide"><a id="tdPump" target="_blank" rel="noopener" style="color:var(--mut);text-decoration:none;font-family:var(--mono);font-size:10px;letter-spacing:.5px">open on pump.fun &#8599;</a></div>
         </div>
         <button class="swexec" id="tdBuy">Connect wallet to buy</button>
         <div class="swstat bstat" id="tdStat"></div>
       </div>
-      <div class="mrow"><a class="btn ghost" id="tdPump" target="_blank" rel="noopener" style="flex:1;text-align:center">pump.fun &#8599;</a></div>
-      <div id="tdSocs" style="margin-top:12px"></div>
     </div>
   </div>
 </div></div></div>
@@ -1839,8 +1841,9 @@ lookScrim.onclick=e=>{if(e.target===lookScrim){lookScrim.classList.remove('show'
 function refreshLookup(mint){if(lookupMint&&lookupMint===mint&&lookScrim.classList.contains('show'))renderLookup()}
 
 /* ===== TOKEN DETAIL modal: large tile-styled view (info | TV chart | swap), opened by clicking a card ===== */
-const tdScrim=$('tdScrim');let tdMint=null;
-function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=mint;const e=d.ev||{};const dev=e.traderPublicKey||'';
+const tdScrim=$('tdScrim');let tdMint=null;let tdMode='buy';
+function devRankOf(w){if(!w)return 0;const rows=bestRows();const i=rows.findIndex(r=>r.w===w);return i<0?0:i+1}
+function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=mint;tdMode='buy';const e=d.ev||{};const dev=e.traderPublicKey||'';
   const c=cardByMint.get(mint);const tier=(c&&c.dataset.tier)||'trk';
   // alpha: the exact number on the tile (same rule as KOL OUT), fallback to liveScore
   const scEl=c&&c.querySelector('[data-sc]');const ls=scEl?(parseInt(scEl.textContent,10)||0):Math.round(liveScore(d));
@@ -1848,12 +1851,13 @@ function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=
   $('tdTk').innerHTML='$'+esc(d.sym||short(mint))+'<span class="star'+(hasStar(d)?' on':'')+'" title="ANSOM PROMISE \u2014 creator fees routed to auto-liquidity" style="margin-left:6px">\u2605</span>';
   $('tdNm').textContent=d.name||short(mint);
   const sc=$('tdSc');sc.textContent=ls;sc.className='sc sc-'+tier;
-  // dev name + image (pump.fun profile pulled async; avatar patches itself via repaintAvatars)
+  // dev name + image + rank (pump.fun profile pulled async; avatar patches itself via repaintAvatars)
   if(dev)queuePumpDev(dev);
-  const pd=pumpDevCache.get(dev);const dnm=(pd&&pd.ok&&pd.username)||(devs[dev]&&devs[dev].label)||(dev?short(dev):'unknown dev');
+  const pd=pumpDevCache.get(dev);const rank=devRankOf(dev);
+  const dnm=((pd&&pd.ok&&pd.username)||(devs[dev]&&devs[dev].label)||(dev?short(dev):'unknown dev'))+(rank?' #'+rank:'');
   $('tdDev').innerHTML=(dev?devAvatar(dev):'<div class="bav ph">?</div>')+'<div><div class="dnm">'+esc(dnm)+'</div><div class="dwl" title="copy dev wallet">'+(dev?short(dev)+' \u29c9':'\u2014')+'</div></div>';
   const dw=$('tdDev').querySelector('.dwl');if(dw&&dev)dw.onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(dev)}catch{}};
-  // clear market readout: big MC + colored 5m delta + stat grid
+  // clear market readout: big MC + colored 5m delta + stat grid (market + dev metrics)
   const m=d.market||{};const mc=mcOf(d);
   $('tdMc').textContent=mc?fmtUsd(mc):'$\u2026';
   const ch=m.ch||0;const chEl=$('tdCh');chEl.textContent=(ch>0?'\u25b2 ':ch<0?'\u25bc ':'')+Math.abs(ch).toFixed(1)+'% 5M';chEl.style.color=ch>0?'var(--up)':ch<0?'var(--down)':'var(--mut)';
@@ -1863,37 +1867,58 @@ function openTokenDetail(mint){const d=dataByMint.get(mint);if(!d)return;tdMint=
   if(rg&&rg.ok&&typeof rg.lpLockedPct==='number')lockTxt=rg.lpLockedPct>=90?'\u2713 LOCKED':Math.round(rg.lpLockedPct)+'%';
   else if(s.mintRev!=null&&s.freezeRev!=null)lockTxt=(s.mintRev&&s.freezeRev)?'\u2713':'\u2717';
   $('tdLock').textContent=lockTxt;
+  $('tdTop').textContent=s.top!=null?s.top+'%':'\u2014';
+  $('tdPeak').textContent=d.peakMc?fmtK(d.peakMc):(mc?fmtK(mc):'\u2014');
+  const ds=devStats(dev);$('tdDevWins').textContent=dev?(ds.wins+(ds.rugs?' / '+ds.rugs+' rug':'')):'\u2014';
+  $('tdDevScore').textContent=dev?Math.round(devScore(dev)):'\u2014';
   $('tdBadges').innerHTML=c?[...c.querySelectorAll('.bdg')].map(b=>b.outerHTML).join(''):'';
-  const devBuyUsd=(d.devSol||0)*(solUsd||0);const realVol=(m.vol>0)&&(devBuyUsd<=0?m.vol>=2000:m.vol>devBuyUsd*1.5);
-  const rows=[['\u2605 ANSOM PROMISE \u2014 creator fees \u2192 auto-liquidity?',d.feeShare==null?null:!!d.feeShare],
-    ['mint authority revoked?',s.mintRev==null?null:s.mintRev],['freeze authority revoked?',s.freezeRev==null?null:s.freezeRev],
-    ['top holder under 25%?',s.top==null?null:(s.top<=25)],['DexScreener website / community / X link?',d.dexLinks?true:null],
-    ['live DexScreener data in?',d.dexLive?true:null],['real volume beyond dev buy?',m.vol?realVol:null]];
-  $('tdChecks').innerHTML=rows.map(([t,v])=>{const mk=v===null?'<span class="mk unk">?</span>':v?'<span class="mk ok">\u2713</span>':'<span class="mk bad">\u2717</span>';const ex=t.startsWith('top')&&s.top!=null?' ('+s.top+'%)':'';return '<div class="citem">'+mk+'<span>'+t+ex+'</span></div>'}).join('');
-  const mintEl=$('tdMint');mintEl.textContent=mint;mintEl.onclick=()=>{try{navigator.clipboard&&navigator.clipboard.writeText(mint)}catch{}mintEl.style.color='var(--up)';setTimeout(()=>mintEl.style.color='',900)};
   // TV chart: DexScreener embed resolves the mint to its live pair (bonding curve or AMM)
   $('tdChart').src='https://dexscreener.com/solana/'+mint+'?embed=1&theme=dark&trades=0&info=0';
-  // ---- swap panel (advanced, mirrors the SWAP section) ----
-  $('tdChipSym').textContent='$'+esc((d.sym||short(mint)).toUpperCase());
-  const ic=$('tdChipIc');const img=(d.market&&d.market.img)||('https://dd.dexscreener.com/ds-data/tokens/solana/'+mint+'.png');
-  ic.innerHTML='<img src="'+esc(img)+'" onerror="this.remove()"/>';
-  const est=()=>{const sol=+$('tdAmt').value||0;const out=$('tdOut');const price=mc>0?mc/1e9:0; // pump.fun standard 1B supply
-    if(!sol||!price){out.textContent='0.0';$('tdMeta').textContent='';return}
-    const usd=sol*(solUsd||0);const toks=usd/price;
-    out.textContent=toks>=1e6?(toks/1e6).toFixed(2)+'M':toks>=1e3?(toks/1e3).toFixed(1)+'K':toks.toFixed(0);
-    $('tdMeta').textContent='\u2248 '+fmtUsd(usd)+' \u00b7 est. from MC, before slippage/fees'};
-  $('tdAmt').value=settings.amounts&&settings.amounts[0]||0.1;$('tdAmt').oninput=est;
+  // ---- swap panel: buy/sell with flip, mirrors the SWAP section ----
+  const tokIc='<img src="'+esc((d.market&&d.market.img)||('https://dd.dexscreener.com/ds-data/tokens/solana/'+mint+'.png'))+'" onerror="this.remove()"/>';
+  const tokSym='$'+esc((d.sym||short(mint)).toUpperCase());
+  const price=mc>0?mc/1e9:0; // pump.fun standard 1B supply
+  const fmtToks=t=>t>=1e6?(t/1e6).toFixed(2)+'M':t>=1e3?(t/1e3).toFixed(1)+'K':t.toFixed(0);
+  const paint=()=>{const buy=tdMode==='buy';
+    $('tdPayLbl').textContent=buy?'You pay':'You sell';
+    $('tdFromIc').className='swchip-ic '+(buy?'sol':'q');$('tdFromIc').innerHTML=buy?'\u25ce':tokIc;$('tdFromSym').textContent=buy?'SOL':tokSym;
+    $('tdToIc').className='swchip-ic '+(buy?'q':'sol');$('tdToIc').innerHTML=buy?tokIc:'\u25ce';$('tdToSym').textContent=buy?tokSym:'SOL';
+    $('tdRecvLbl').textContent='You receive (est.)';
+    $('tdAmt').value=buy?((settings.amounts&&settings.amounts[0])||0.1):100;
+    $('tdAmt').step=buy?'0.01':'5';
+    $('tdQuick').innerHTML=(buy?(settings.amounts||[]):[25,50,75,100]).map(a=>'<button class="qbtn" data-a="'+a+'">'+a+(buy?' SOL':'%')+'</button>').join('');
+    $('tdQuick').querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{$('tdAmt').value=b.dataset.a;est()});
+    $('tdBuy').textContent=wallet?(buy?'BUY NOW \u2014 approve in wallet':'SELL NOW \u2014 approve in wallet'):'Connect wallet to '+(buy?'buy':'sell');
+    $('tdFlip').title=buy?'switch to sell':'switch to buy';est()};
+  const est=()=>{const v=+$('tdAmt').value||0;const out=$('tdOut');
+    if(tdMode==='buy'){if(!v||!price){out.textContent='0.0';$('tdMeta').textContent='';return}
+      const usd=v*(solUsd||0);out.textContent=fmtToks(usd/price);
+      $('tdMeta').textContent='\u2248 '+fmtUsd(usd)+' \u00b7 est. from MC, before slippage/fees'}
+    else{const pct=Math.max(0,Math.min(100,v));const pos=getPositions()[mint];
+      if(pos&&pos.entrySol&&mc&&pos.entryMc){const estSol=pos.entrySol*(mc/pos.entryMc)*(pct/100);out.textContent=estSol.toFixed(3);
+        $('tdMeta').textContent='sells '+pct+'% of your position \u00b7 est. from entry, before slippage/fees'}
+      else{out.textContent='\u2014';$('tdMeta').textContent='sells '+pct+'% of your holdings'}}};
+  $('tdAmt').oninput=est;
   $('tdSlip').value=settings.slippage||10;
-  $('tdQuick').innerHTML=(settings.amounts||[]).map(a=>'<button class="qbtn" data-a="'+a+'">'+a+' SOL</button>').join('');
-  $('tdQuick').querySelectorAll('.qbtn').forEach(b=>b.onclick=()=>{$('tdAmt').value=b.dataset.a;est()});
-  est();
+  $('tdFlip').onclick=()=>{tdMode=tdMode==='buy'?'sell':'buy';paint()};
   $('tdPump').href='https://pump.fun/'+mint;$('tdStat').textContent='';
-  $('tdBuy').textContent=wallet?'BUY NOW \u2014 approve in wallet':'Connect wallet to buy';
-  $('tdBuy').onclick=async()=>{if(!wallet){await connectWallet();paintWallet();if(!wallet)return;$('tdBuy').textContent='BUY NOW \u2014 approve in wallet'}
-    const migratedNow=!!(d.live||(d.pairUrl&&d.dexId&&!/pumpfun/.test(d.dexId||''))||d.migrated);buyPool=migratedNow?'auto':null;
-    executeBuy(mint,+$('tdAmt').value,+$('tdSlip').value,$('tdStat'))};
+  $('tdBuy').onclick=async()=>{if(!wallet){await connectWallet();paintWallet();if(!wallet)return;paint()}
+    const migratedNow=!!(d.live||(d.pairUrl&&d.dexId&&!/pumpfun/.test(d.dexId||''))||d.migrated);
+    if(tdMode==='buy'){buyPool=migratedNow?'auto':null;executeBuy(mint,+$('tdAmt').value,+$('tdSlip').value,$('tdStat'))}
+    else{const pct=Math.max(1,Math.min(100,Math.round(+$('tdAmt').value||100)));
+      if(pct>=100&&getPositions()[mint]){executeSell(mint);return} // full exit through the trusted path: position cleanup + PnL card
+      const st=$('tdStat');st.textContent='building transaction\u2026';
+      const body={publicKey:wallet,action:'sell',mint,denominatedInSol:'false',amount:pct+'%',slippage:Number($('tdSlip').value||settings.slippage||10),priorityFee:Number(settings.priority),pool:migratedNow?'auto':(settings.pool||'auto')};
+      let resp=null;try{resp=await fetch('/api/trade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!resp.ok)throw 0}
+      catch{try{resp=await fetch('https://pumpportal.fun/api/trade-local',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})}catch(e2){st.innerHTML='<span class="err">could not reach trade API</span>';return}}
+      if(!resp||!resp.ok){st.innerHTML='<span class="err">trade build failed ('+(resp?resp.status:'no response')+')</span>';return}
+      let tx;try{tx=window.solanaWeb3.VersionedTransaction.deserialize(new Uint8Array(await resp.arrayBuffer()))}catch(e3){st.innerHTML='<span class="err">bad transaction data</span>';return}
+      st.textContent='approve in your wallet\u2026';
+      try{const r=await window.solana.signAndSendTransaction(tx);const sig=(r&&r.signature)||r;st.innerHTML='sent \u2713 <a href="https://solscan.io/tx/'+sig+'" target="_blank" rel="noopener">view on solscan</a>'}
+      catch(e4){st.innerHTML='<span class="err">rejected or failed in wallet</span>'}}};
   // socials: same instant links as the tile
   $('tdSocs').innerHTML=socsHtml(d);
+  paint();
   tdScrim.classList.add('show')}
 function closeTokenDetail(){tdScrim.classList.remove('show');$('tdChart').src='about:blank';tdMint=null}
 $('tdClose').onclick=closeTokenDetail;
